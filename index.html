@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>自駕特訓班：4個月玩轉日本</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --bg-card-hover: #22223a;
+      --surface: #16213e;
+      --accent: #e94560;
+      --accent-glow: rgba(233,69,96,0.3);
+      --gold: #f5c842;
+      --gold-glow: rgba(245,200,66,0.25);
+      --noun-green: #00e676;
+      --particle-red: #ff5252;
+      --verb-blue: #448aff;
+      --text: #e8e8f0;
+      --text-dim: #8888aa;
+      --text-muted: #555577;
+      --border: #2a2a4a;
+      --success: #00e676;
+      --warning: #ffab40;
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans TC', 'M PLUS Rounded 1c', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex; flex-direction: column;
+      overflow-x: hidden;
+      -webkit-user-select: none; user-select: none;
+    }
+    .hidden { display: none !important; }
+
+    /* ═══════════════ TOP BAR ═══════════════ */
+    .top-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; flex-shrink: 0;
+    }
+    .app-logo {
+      font-size: 1.1rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+    .top-spacer { flex: 1; }
+    .countdown-badge {
+      font-size: 0.72rem; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px;
+      background: var(--surface); color: var(--gold);
+      border: 1px solid rgba(245,200,66,0.3);
+      white-space: nowrap;
+    }
+    .gear-btn {
+      width: 34px; height: 34px; border: none; border-radius: 50%;
+      background: var(--surface); color: var(--text-dim);
+      font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .gear-btn:hover { background: var(--bg-card-hover); }
+
+    /* ═══════════════ MONTH TABS ═══════════════ */
+    .month-nav {
+      display: flex; gap: 0; padding: 8px 14px 0;
+      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .month-nav::-webkit-scrollbar { display: none; }
+    .month-tab {
+      padding: 8px 14px; border: none;
+      font-family: inherit; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      background: transparent; color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .month-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .month-tab.locked { opacity: 0.4; cursor: default; }
+
+    /* ═══════════════ UNIT CARDS ═══════════════ */
+    .unit-scroll {
+      display: flex; gap: 8px; padding: 10px 14px;
+      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .unit-scroll::-webkit-scrollbar { display: none; }
+    .unit-card {
+      padding: 8px 16px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-family: inherit; font-size: 0.75rem; font-weight: 600;
+      color: var(--text-dim); cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .unit-card.active {
+      background: var(--accent); color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .unit-card.done {
+      background: rgba(0,230,118,0.1); color: var(--success);
+      border-color: rgba(0,230,118,0.3);
+    }
+
+    /* ═══════════════ PHASE TABS ═══════════════ */
+    .phase-nav {
+      display: flex; gap: 4px; padding: 4px;
+      margin: 6px 14px 0; background: var(--surface);
+      border-radius: 14px; flex-shrink: 0;
+    }
+    .phase-btn {
+      flex: 1; padding: 8px 6px; border: none; border-radius: 10px;
+      font-family: inherit; font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; background: transparent; color: var(--text-muted);
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .phase-btn.active {
+      background: var(--bg-card); color: var(--text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* ═══════════════ PHASE CONTAINERS ═══════════════ */
+    .phase-container {
+      flex: 1; display: none; flex-direction: column;
+      padding: 12px 14px; overflow-y: auto;
+      animation: fadeUp 0.25s ease;
+    }
+    .phase-container.active { display: flex; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════ PHASE 1: LOOK & LISTEN ═══════════════ */
+    .p1-topic {
+      text-align: center; font-size: 0.82rem; font-weight: 600;
+      color: var(--text-dim); margin-bottom: 6px;
+    }
+    .p1-topic .topic-emoji { font-size: 1.1rem; margin-right: 4px; }
+
+    .sentence-display {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      align-items: baseline; gap: 2px;
+      font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+      font-size: clamp(2rem, 9vw, 3.5rem);
+      font-weight: 900; margin: 16px 0;
+      line-height: 1.5;
+    }
+    .chunk-wrap {
+      display: inline-flex; align-items: baseline;
+      cursor: pointer; padding: 2px 4px;
+      border-radius: 8px; transition: all 0.25s;
+      position: relative;
+    }
+    .chunk-wrap:hover { background: rgba(255,255,255,0.05); }
+    .chunk-wrap.active-chunk {
+      transform: scale(1.12);
+      background: rgba(255,255,255,0.08);
+    }
+    .chunk-char {
+      display: inline-block; transition: color 0.3s, text-shadow 0.3s;
+      color: var(--text-muted);
+    }
+    .chunk-char.lit { text-shadow: 0 0 20px currentColor; }
+
+    /* Color classes for Japanese */
+    .color-noun-green { color: var(--noun-green) !important; }
+    .color-particle-red { color: var(--particle-red) !important; }
+    .color-verb-blue { color: var(--verb-blue) !important; }
+
+    .p1-translation {
+      text-align: center; font-size: 1rem; color: var(--text-dim);
+      margin-bottom: 12px; font-weight: 500;
+    }
+
+    .p1-controls {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .p1-play-btn {
+      padding: 12px 24px; border: none; border-radius: 28px;
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .p1-play-btn:active { transform: scale(0.95); }
+    .p1-play-btn.slow {
+      background: var(--gold); color: #1a1a2e;
+      box-shadow: 0 4px 16px var(--gold-glow);
+    }
+    .p1-play-btn.normal {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .p1-note-area {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 12px 16px; margin-top: 8px;
+      border: 1px solid var(--border);
+    }
+    .p1-note-text {
+      font-size: 0.82rem; color: var(--text-dim);
+      line-height: 1.7; text-align: center;
+    }
+    .p1-note-text .hl { font-weight: 700; color: var(--text); }
+
+    /* ═══════════════ PHASE 2: ROLEPLAY ═══════════════ */
+    .p2-scenario {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 20px; margin-bottom: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .p2-scenario-icon { font-size: 2.5rem; margin-bottom: 8px; }
+    .p2-instruction {
+      font-size: 0.95rem; color: var(--text); line-height: 1.7;
+      font-weight: 500;
+    }
+    .p2-hint-sentence {
+      font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+      font-size: 1.6rem; font-weight: 900;
+      margin: 16px 0; text-align: center;
+      color: var(--text-dim); letter-spacing: 2px;
+      transition: color 0.5s;
+    }
+    .p2-hint-sentence.revealed { color: var(--text); }
+    .p2-hint-toggle {
+      text-align: center; margin-bottom: 16px;
+    }
+    .p2-hint-toggle button {
+      padding: 6px 16px; border: 1px solid var(--border);
+      border-radius: 20px; background: var(--surface);
+      color: var(--text-dim); font-family: inherit;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
+    .p2-mic-area {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .mic-btn {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 3px solid var(--accent); background: var(--bg-card);
+      color: var(--accent); font-size: 1.8rem; cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mic-btn:active { transform: scale(0.9); }
+    .mic-btn.listening {
+      background: var(--accent); color: white;
+      box-shadow: 0 0 30px var(--accent-glow);
+      animation: pulse-mic 1.2s infinite;
+    }
+    @keyframes pulse-mic {
+      0%,100% { box-shadow: 0 0 20px var(--accent-glow); }
+      50% { box-shadow: 0 0 40px var(--accent-glow); }
+    }
+    .p2-result {
+      font-size: 0.9rem; color: var(--text-dim);
+      text-align: center; min-height: 30px;
+      line-height: 1.5;
+    }
+    .p2-result.success { color: var(--success); font-weight: 700; }
+    .p2-result.fail { color: var(--particle-red); }
+    .p2-keyword-chips {
+      display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+      margin-top: 8px;
+    }
+    .keyword-chip {
+      padding: 4px 12px; border-radius: 14px;
+      font-size: 0.75rem; font-weight: 600;
+      background: var(--surface); color: var(--text-muted);
+      border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .keyword-chip.matched {
+      background: rgba(0,230,118,0.15); color: var(--success);
+      border-color: rgba(0,230,118,0.4);
+    }
+
+    /* ═══════════════ PHASE 3: KANJI WRITE ═══════════════ */
+    .p3-kanji-header {
+      text-align: center; margin-bottom: 12px;
+    }
+    .p3-kanji-emoji { font-size: 2.5rem; }
+    .p3-kanji-title {
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--gold); margin-top: 4px;
+    }
+    .p3-story-btn {
+      padding: 6px 16px; border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 20px; background: rgba(245,200,66,0.08);
+      color: var(--gold); font-family: inherit;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      margin-top: 8px;
+    }
+    .p3-canvas-area {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
+    }
+    .p3-canvas-wrapper {
+      position: relative; width: 280px; height: 280px;
+      background: #fafafa; border-radius: var(--radius);
+      border: 3px solid var(--border);
+      overflow: hidden; cursor: crosshair;
+      box-shadow: var(--shadow);
+    }
+    .p3-canvas-wrapper canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; touch-action: none;
+    }
+    #p3-hint-canvas { z-index: 1; opacity: 0.25; pointer-events: none; }
+    #p3-draw-canvas { z-index: 2; }
+    .p3-guide-lines {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    }
+    .p3-controls {
+      display: flex; gap: 10px; justify-content: center;
+    }
+    .p3-ctrl-btn {
+      padding: 10px 22px; border: none; border-radius: 24px;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .p3-ctrl-btn:active { transform: scale(0.95); }
+    .p3-ctrl-btn.clear {
+      background: var(--surface); color: var(--warning);
+      border: 1px solid var(--border);
+    }
+    .p3-ctrl-btn.submit {
+      background: var(--accent); color: white;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    /* ═══════════════ MODALS ═══════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-card); border-radius: 24px; padding: 24px;
+      max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal h2 {
+      font-size: 1.15rem; margin-bottom: 16px;
+      color: var(--text);
+    }
+    .modal label {
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--text-dim); display: block; margin-bottom: 6px;
+    }
+    .modal input[type="password"], .modal input[type="text"], .modal input[type="date"] {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: 0.9rem; outline: none;
+    }
+    .modal input:focus { border-color: var(--accent); }
+    .modal .hint-text {
+      font-size: 0.7rem; color: var(--text-muted);
+      margin-top: 4px; line-height: 1.4;
+    }
+    .modal .section { margin-bottom: 16px; }
+    .modal-btns {
+      display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px;
+    }
+    .modal-btn {
+      padding: 10px 22px; border: none; border-radius: 18px;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .modal-btn:active { transform: scale(0.95); }
+    .modal-btn.save { background: var(--accent); color: white; }
+    .modal-btn.cancel { background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); }
+
+    /* Kanji Story Modal */
+    .story-modal {
+      background: var(--bg-card); border-radius: 28px; padding: 28px;
+      max-width: 360px; width: 100%; text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      animation: modalIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .story-emoji { font-size: 3.5rem; margin-bottom: 8px; }
+    .story-title {
+      font-size: 1.2rem; font-weight: 900;
+      color: var(--gold); margin-bottom: 12px;
+    }
+    .story-body {
+      font-size: 0.92rem; color: var(--text);
+      line-height: 1.8; padding: 14px;
+      background: var(--surface); border-radius: 16px;
+      margin-bottom: 16px; text-align: left;
+    }
+    .story-close {
+      padding: 10px 28px; border: none; border-radius: 24px;
+      background: var(--gold); color: #1a1a2e;
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer;
+    }
+    .story-listen {
+      padding: 10px 20px; border: none; border-radius: 24px;
+      background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; margin-right: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Score Popup */
+    .score-popup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: var(--bg-card); padding: 24px 36px;
+      border-radius: 24px; text-align: center;
+      z-index: 20000; border: 2px solid var(--accent);
+      box-shadow: 0 16px 60px rgba(0,0,0,0.6);
+    }
+    .score-popup.show {
+      animation: popScale 0.5s forwards;
+    }
+    @keyframes popScale {
+      0% { transform: translate(-50%,-50%) scale(0); }
+      80% { transform: translate(-50%,-50%) scale(1.08); }
+      100% { transform: translate(-50%,-50%) scale(1); }
+    }
+    .score-val { font-size: 3rem; font-weight: 900; display: block; }
+    .score-desc { font-size: 1.1rem; font-weight: 600; color: var(--text-dim); display: block; margin-top: 4px; }
+    .score-popup.perfect { border-color: var(--gold); }
+    .score-popup.perfect .score-val { color: var(--gold); }
+    .score-popup.good .score-val { color: var(--success); }
+    .score-popup.ok .score-val { color: var(--verb-blue); }
+    .score-popup.bad .score-val { color: var(--text-muted); }
+
+    /* OCR Toast */
+    .ocr-toast {
+      position: fixed; bottom: 80px; left: 50%;
+      transform: translateX(-50%); z-index: 20000;
+      padding: 12px 24px; background: var(--bg-card);
+      border-radius: 16px; border: 1px solid var(--border);
+      box-shadow: var(--shadow); text-align: center;
+      animation: fadeUp 0.3s ease;
+    }
+    .ocr-toast .ocr-row {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.1rem;
+    }
+    .ocr-toast .ocr-seen { font-size: 2rem; font-weight: 900; }
+    .ocr-toast .ocr-ok { color: var(--success); }
+    .ocr-toast .ocr-ng { color: var(--particle-red); }
+
+    /* Grading overlay */
+    .grading-overlay {
+      position: absolute; inset: 0; z-index: 50;
+      background: rgba(26,26,46,0.9); border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Chunk note popup (tooltip) */
+    .chunk-tooltip {
+      position: fixed; z-index: 9999;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px 16px;
+      max-width: 280px; font-size: 0.82rem;
+      color: var(--text); line-height: 1.6;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: fadeUp 0.2s ease;
+      pointer-events: none;
+    }
+
+    /* No key warning */
+    .no-key-banner {
+      margin: 8px 14px; padding: 12px 16px;
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 12px; text-align: center;
+      font-size: 0.78rem; color: var(--gold);
+    }
+    .no-key-banner a {
+      color: var(--accent); text-decoration: underline; cursor: pointer;
+    }
+
+    /* Bottom progress */
+    .bottom-bar {
+      padding: 8px 14px; background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
+    .progress-bar {
+      flex: 1; height: 6px; background: var(--surface);
+      border-radius: 3px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      transition: width 0.5s ease;
+    }
+    .progress-label {
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--text-dim); white-space: nowrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .sentence-display { font-size: clamp(1.6rem, 8vw, 2.8rem); }
+      .p3-canvas-wrapper { width: 260px; height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SETTINGS MODAL ═══════════════ -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h2>⚙️ 設定</h2>
+    <div class="section">
+      <label>🧠 Gemini API Key（手寫辨識 + AI 功能）</label>
+      <input type="password" id="gemini-key-input" placeholder="AIza...">
+      <div class="hint-text">免費申請：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a></div>
+    </div>
+    <div class="section">
+      <label>🗓️ 出發日期</label>
+      <input type="date" id="trip-date-input">
+      <div class="hint-text">設定你的日本自駕出發日，首頁會顯示倒數天數。</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeSettings()">取消</button>
+      <button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ KANJI STORY MODAL ═══════════════ -->
+<div class="modal-overlay" id="story-modal">
+  <div class="story-modal">
+    <div class="story-emoji" id="story-emoji">🛑</div>
+    <div class="story-title" id="story-title"></div>
+    <div class="story-body" id="story-body"></div>
+    <button class="story-listen" onclick="readStory()">🔊 唸給我聽</button>
+    <button class="story-close" onclick="closeStoryModal()">知道了！</button>
+  </div>
+</div>
+
+<!-- ═══════════════ CHUNK NOTE MODAL ═══════════════ -->
+<div class="modal-overlay" id="note-modal">
+  <div class="story-modal" style="max-width:320px;">
+    <div class="story-emoji" id="note-emoji"></div>
+    <div class="story-title" id="note-title" style="font-size:1rem;"></div>
+    <div class="story-body" id="note-body" style="text-align:center;"></div>
+    <button class="story-close" onclick="document.getElementById('note-modal').classList.remove('open')">OK</button>
+  </div>
+</div>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<div class="top-bar">
+  <div class="app-logo">🚗 自駕特訓班</div>
+  <div class="top-spacer"></div>
+  <div class="countdown-badge" id="countdown-badge">🗓️ 設定出發日</div>
+  <button class="gear-btn" onclick="openSettings()">⚙️</button>
+</div>
+
+<!-- ═══════════════ MONTH TABS ═══════════════ -->
+<div class="month-nav" id="month-nav"></div>
+
+<!-- ═══════════════ UNIT CARDS ═══════════════ -->
+<div class="unit-scroll" id="unit-scroll"></div>
+
+<!-- ═══════════════ PHASE TABS ═══════════════ -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="switchPhase(1)">👀 拆解看聽</button>
+  <button class="phase-btn" onclick="switchPhase(2)">🎤 情境開口</button>
+  <button class="phase-btn" onclick="switchPhase(3)">✏️ 漢字手寫</button>
+</div>
+
+<!-- ═══════════════ NO KEY BANNER ═══════════════ -->
+<div class="no-key-banner hidden" id="no-key-banner">
+  🔑 尚未設定 Gemini API Key，手寫辨識功能無法使用。
+  <a onclick="openSettings()">前往設定</a>
+</div>
+
+<!-- ═══════════════ PHASE 1: LOOK & LISTEN ═══════════════ -->
+<div class="phase-container active" id="phase1">
+  <div class="p1-topic" id="p1-topic"></div>
+  <div class="sentence-display" id="p1-display"></div>
+  <div class="p1-translation" id="p1-translation"></div>
+  <div class="p1-controls">
+    <button class="p1-play-btn slow" onclick="playPhase1('slow')">🔊 慢速播放</button>
+    <button class="p1-play-btn normal" onclick="playPhase1('normal')">⚡ 常速播放</button>
+  </div>
+  <div class="p1-note-area" id="p1-note-area"></div>
+</div>
+
+<!-- ═══════════════ PHASE 2: ROLEPLAY ═══════════════ -->
+<div class="phase-container" id="phase2">
+  <div class="p2-scenario" id="p2-scenario">
+    <div class="p2-scenario-icon" id="p2-icon">🎭</div>
+    <div class="p2-instruction" id="p2-instruction"></div>
+  </div>
+  <div class="p2-hint-sentence" id="p2-hint"></div>
+  <div class="p2-hint-toggle">
+    <button onclick="toggleHint()" id="hint-toggle-btn">👁️ 顯示提示</button>
+  </div>
+  <div class="p2-mic-area">
+    <button class="mic-btn" id="p2-mic-btn" onclick="startSpeechRecognition()">🎤</button>
+    <div class="p2-result" id="p2-result">按下麥克風，大聲說日文！</div>
+    <div class="p2-keyword-chips" id="p2-chips"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PHASE 3: KANJI WRITE ═══════════════ -->
+<div class="phase-container" id="phase3">
+  <div class="p3-kanji-header">
+    <div class="p3-kanji-emoji" id="p3-emoji"></div>
+    <div class="p3-kanji-title" id="p3-title"></div>
+    <button class="p3-story-btn" onclick="openStoryModal()" id="p3-story-btn">📖 看漢字故事</button>
+  </div>
+  <div class="p3-canvas-area">
+    <div class="p3-canvas-wrapper" id="p3-wrapper">
+      <svg class="p3-guide-lines" viewBox="0 0 280 280">
+        <line x1="140" y1="0" x2="140" y2="280" stroke="#ddd" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="0" y1="140" x2="280" y2="140" stroke="#ddd" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="0" y1="0" x2="280" y2="280" stroke="#eee" stroke-width="0.5" stroke-dasharray="4,6"/>
+        <line x1="280" y1="0" x2="0" y2="280" stroke="#eee" stroke-width="0.5" stroke-dasharray="4,6"/>
+      </svg>
+      <canvas id="p3-hint-canvas"></canvas>
+      <canvas id="p3-draw-canvas"></canvas>
+      <div class="grading-overlay hidden" id="grading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size:0.85rem; color:var(--text-dim)">AI 老師檢查中...</div>
+      </div>
+    </div>
+    <div class="p3-controls">
+      <button class="p3-ctrl-btn clear" onclick="clearCanvas()">❌ 重寫</button>
+      <button class="p3-ctrl-btn submit" onclick="submitKanji()">⭕ 交卷</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BOTTOM BAR ═══════════════ -->
+<div class="bottom-bar">
+  <div class="progress-label" id="progress-label">0 / 5</div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="progress-label" id="score-label">0 分</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  LESSON DATA: Month 1 - Foundation & Road Signs
+// ══════════════════════════════════════════════════════════════
+const CURRICULUM = {
+  month_1: {
+    title: "第一個月：生存地基",
+    subtitle: "道路標誌與基礎生存",
+    units: [
+      {
+        id: "sign_01_tomare", category: "month_1",
+        topic: "必須絕對遵守的停止線",
+        fullSentence: "止まれ", translation: "停下來！",
+        fullTts: "とまれ",
+        chunks: [
+          { text: "止まれ", tts: "とまれ", type: "verb",
+            highlights: [
+              { target: "止まれ", cssClass: "color-verb-blue",
+                note: "🛑 這是動詞的「命令形」，平常對人講很不禮貌，但在號誌上代表「不管怎樣，絕對要給我停下來」。" }
+            ]
+          }
+        ],
+        roleplay: {
+          instruction: "前方出現倒三角形、紅底白字的標誌，請對著駕駛大喊：「停下來！」",
+          acceptKeywords: ["止まれ", "とまれ", "トマレ"]
+        },
+        kanjiTask: {
+          target: "止", hint: "止", emoji: "🛑",
+          title: "🛑 止（停下腳步）",
+          story: "這個字的形狀就像是一個人的「腳印」停在地上。在日本開車看到這個字，腳掌就要立刻去踩煞車，一定要完全靜止 3 秒鐘喔！"
+        }
+      },
+      {
+        id: "sign_02_jokou", category: "month_1",
+        topic: "狹窄巷弄的保命符",
+        fullSentence: "ここは徐行してください", translation: "這裡請慢行。",
+        fullTts: "ここはじょこうしてください",
+        chunks: [
+          { text: "ここ", tts: "ここ", type: "noun",
+            highlights: [
+              { target: "ここ", cssClass: "color-noun-green", note: "📍 這裡 (Here)。" }
+            ]
+          },
+          { text: "は", tts: "わ", type: "particle",
+            highlights: [
+              { target: "は", cssClass: "color-particle-red", note: "🔴 助詞「は」（唸 wa），用來提示主題，意思是『關於這裡嘛...』。" }
+            ]
+          },
+          { text: "徐行", tts: "じょこう", type: "noun",
+            highlights: [
+              { target: "徐行", cssClass: "color-noun-green", note: "🐢 徐行 (慢慢開)。在日本通常指時速 10 公里以下，能隨時煞停的速度。" }
+            ]
+          },
+          { text: "してください", tts: "してください", type: "verb",
+            highlights: [
+              { target: "してください", cssClass: "color-verb-blue", note: "🙏 請這麼做。這是萬用的禮貌請求句型。" }
+            ]
+          }
+        ],
+        roleplay: {
+          instruction: "開進了沒有人行道的狹窄巷子，請提醒駕駛：「請慢慢開（徐行）」。",
+          acceptKeywords: ["徐行", "じょこう", "ジョコウ"]
+        },
+        kanjiTask: {
+          target: "徐", hint: "徐", emoji: "🚶",
+          title: "🚶 徐（從容慢慢來）",
+          story: "左邊的「彳」代表步伐，右邊的「余」有多餘、從容的意思。腳步從容不迫，就是慢慢來。開車看到它，請鬆開油門！"
+        }
+      },
+      {
+        id: "sign_03_ippoutsuukou", category: "month_1",
+        topic: "避免逆向的關鍵",
+        fullSentence: "一方通行です", translation: "這裡是單行道。",
+        fullTts: "いっぽうつうこうです",
+        chunks: [
+          { text: "一方通行", tts: "いっぽうつうこう", type: "noun",
+            highlights: [
+              { target: "一方通行", cssClass: "color-noun-green", note: "➡ 只有一個方向能通行，也就是單行道。通常是藍底白箭頭的標誌。" }
+            ]
+          },
+          { text: "です", tts: "です", type: "verb",
+            highlights: [
+              { target: "です", cssClass: "color-verb-blue", note: "✨ 肯定結尾，相當於中文的『是』。" }
+            ]
+          }
+        ],
+        roleplay: {
+          instruction: "導航顯示這條路只能單向行駛，請說出：「是單行道」。",
+          acceptKeywords: ["一方通行", "いっぽうつうこう", "通行"]
+        },
+        kanjiTask: {
+          target: "通", hint: "通", emoji: "🛣️",
+          title: "🛣️ 通（順暢走過去）",
+          story: "「辶」代表在路上走動，右邊的「甬」就像是通道。讓車子順暢地通過，就是「通行」。"
+        }
+      },
+      {
+        id: "sign_04_chuushakinshi", category: "month_1",
+        topic: "尋找停車位",
+        fullSentence: "駐車禁止ですよ", translation: "這裡是禁止停車的喔。",
+        fullTts: "ちゅうしゃきんしですよ",
+        chunks: [
+          { text: "駐車", tts: "ちゅうしゃ", type: "noun",
+            highlights: [
+              { target: "駐車", cssClass: "color-noun-green", note: "🅿️ 停放車輛的意思。" }
+            ]
+          },
+          { text: "禁止", tts: "きんし", type: "noun",
+            highlights: [
+              { target: "禁止", cssClass: "color-noun-green", note: "❌ 就是不能做的意思。藍底紅斜線的標誌絕對不要停！" }
+            ]
+          },
+          { text: "です", tts: "です", type: "verb",
+            highlights: [
+              { target: "です", cssClass: "color-verb-blue", note: "✨ 肯定結尾『是』。" }
+            ]
+          },
+          { text: "よ", tts: "よ", type: "particle",
+            highlights: [
+              { target: "よ", cssClass: "color-particle-red", note: "🔴 助詞「よ」，放在句尾用來提醒對方不知道的事情，就像中文的『～喔』。" }
+            ]
+          }
+        ],
+        roleplay: {
+          instruction: "駕駛想在路邊暫停，但你看到紅色斜線標誌，請立刻提醒：「禁止停車！」",
+          acceptKeywords: ["駐車", "禁止", "ちゅうしゃきんし"]
+        },
+        kanjiTask: {
+          target: "駐", hint: "駐", emoji: "🅿️",
+          title: "🅿️ 駐（鐵馬休息站）",
+          story: "左邊是一匹「馬」，右邊是「主」。古代讓馬停下來休息在主人的地方，現代的「鐵馬（汽車）」停下來休息就是「駐車」！"
+        }
+      },
+      {
+        id: "sign_05_etsenyou", category: "month_1",
+        topic: "高速公路收費站閘道",
+        fullSentence: "ETC専用レーンに入ります", translation: "要進入 ETC 專用車道囉。",
+        fullTts: "イーティーシーせんようレーンにはいります",
+        chunks: [
+          { text: "ETC専用", tts: "イーティーシーせんよう", type: "noun",
+            highlights: [
+              { target: "専用", cssClass: "color-noun-green", note: "🚗 紫色招牌的 ETC 專用道，租車時如果有租借 ETC 卡就大膽開過去吧！" }
+            ]
+          },
+          { text: "レーン", tts: "レーン", type: "noun",
+            highlights: [
+              { target: "レーン", cssClass: "color-noun-green", note: "🛣️ Lane (車道)。" }
+            ]
+          },
+          { text: "に", tts: "に", type: "particle",
+            highlights: [
+              { target: "に", cssClass: "color-particle-red", note: "🔴 助詞「に」：用來表示動作的目的地或歸宿，進入『到』車道裡面。" }
+            ]
+          },
+          { text: "入ります", tts: "はいります", type: "verb",
+            highlights: [
+              { target: "入ります", cssClass: "color-verb-blue", note: "🚪 進入的意思。" }
+            ]
+          }
+        ],
+        roleplay: {
+          instruction: "快到收費站了，確認車上有裝 ETC 卡，請宣告：「進入 ETC 專用道」。",
+          acceptKeywords: ["専用", "せんよう", "ETC"]
+        },
+        kanjiTask: {
+          target: "専", hint: "専", emoji: "🎯",
+          title: "🎯 専（全部集中在這裡）",
+          story: "上方像是紡織用的磚，把絲線集中繞在上面。把所有的注意力或用途集中在一個地方，就是「專用」！"
+        }
+      }
+    ]
+  },
+  month_2: {
+    title: "第二個月：導航指引",
+    subtitle: "聽懂導航、問路、方位",
+    units: [] // 未來擴增
+  },
+  month_3: {
+    title: "第三個月：實戰對話",
+    subtitle: "加油站、收費站、租車",
+    units: []
+  },
+  month_4: {
+    title: "第四個月：突發應變",
+    subtitle: "故障求助、餐廳、飯店",
+    units: []
+  }
+};
+
+// ══════════════════════════════════════════
+// Global State
+// ══════════════════════════════════════════
+let GEMINI_KEY = '';
+let tripDate = null;
+let currentMonth = 'month_1';
+let currentUnitIdx = 0;
+let currentPhase = 1;
+let totalScore = 0;
+let hasWritten = false;
+const CANVAS_SIZE = 280;
+const synth = window.speechSynthesis;
+let jpVoice = null;
+let zhVoice = null;
+
+function findVoices() {
+  const voices = synth.getVoices();
+  jpVoice = voices.find(v => v.lang === 'ja-JP' && v.name.includes('Google')) ||
+            voices.find(v => v.lang === 'ja-JP') || null;
+  zhVoice = voices.find(v => v.lang === 'zh-TW' && v.name.includes('Google')) ||
+            voices.find(v => v.lang.startsWith('zh')) || null;
+}
+synth.addEventListener('voiceschanged', findVoices);
+findVoices();
+
+function getCurrentUnits() {
+  return CURRICULUM[currentMonth]?.units || [];
+}
+function getCurrentUnit() {
+  const units = getCurrentUnits();
+  return units[currentUnitIdx] || null;
+}
+
+// ══════════════════════════════════════════
+// TTS
+// ══════════════════════════════════════════
+function speakJP(text, rate = 0.8) {
+  synth.cancel();
+  return new Promise(resolve => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = rate;
+    if (jpVoice) u.voice = jpVoice;
+    u.onend = resolve; u.onerror = resolve;
+    synth.speak(u);
+  });
+}
+function speakZH(text) {
+  synth.cancel();
+  return new Promise(resolve => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-TW'; u.rate = 0.9;
+    if (zhVoice) u.voice = zhVoice;
+    u.onend = resolve; u.onerror = resolve;
+    synth.speak(u);
+  });
+}
+
+// ══════════════════════════════════════════
+// Settings
+// ══════════════════════════════════════════
+function openSettings() {
+  document.getElementById('settings-modal').classList.add('open');
+  document.getElementById('gemini-key-input').value = GEMINI_KEY;
+  document.getElementById('trip-date-input').value = tripDate || '';
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function saveSettings() {
+  GEMINI_KEY = document.getElementById('gemini-key-input').value.trim();
+  localStorage.setItem('jd-gemini-key', GEMINI_KEY);
+
+  const dateVal = document.getElementById('trip-date-input').value;
+  if (dateVal) {
+    tripDate = dateVal;
+    localStorage.setItem('jd-trip-date', dateVal);
+  }
+
+  closeSettings();
+  updateCountdown();
+  updateNoKeyBanner();
+}
+
+function updateCountdown() {
+  const badge = document.getElementById('countdown-badge');
+  if (!tripDate) { badge.textContent = '🗓️ 設定出發日'; return; }
+  const diff = Math.ceil((new Date(tripDate) - new Date()) / (1000*60*60*24));
+  if (diff > 0) {
+    badge.textContent = `🗓️ 出發倒數 ${diff} 天`;
+  } else if (diff === 0) {
+    badge.textContent = '🎉 今天出發！';
+  } else {
+    badge.textContent = '✈️ 已在旅途中';
+  }
+}
+
+function updateNoKeyBanner() {
+  document.getElementById('no-key-banner').classList.toggle('hidden', !!GEMINI_KEY);
+}
+
+// ══════════════════════════════════════════
+// Month & Unit Navigation
+// ══════════════════════════════════════════
+function renderMonthTabs() {
+  const nav = document.getElementById('month-nav');
+  nav.innerHTML = '';
+  Object.entries(CURRICULUM).forEach(([key, month]) => {
+    const btn = document.createElement('button');
+    btn.className = 'month-tab' + (key === currentMonth ? ' active' : '');
+    if (month.units.length === 0 && key !== currentMonth) btn.classList.add('locked');
+    btn.textContent = month.title;
+    btn.onclick = () => {
+      if (month.units.length === 0) return;
+      currentMonth = key;
+      currentUnitIdx = 0;
+      renderMonthTabs();
+      renderUnitCards();
+      loadUnit();
+    };
+    nav.appendChild(btn);
+  });
+}
+
+function renderUnitCards() {
+  const scroll = document.getElementById('unit-scroll');
+  scroll.innerHTML = '';
+  const units = getCurrentUnits();
+  if (units.length === 0) {
+    scroll.innerHTML = '<div style="padding:8px; color:var(--text-muted); font-size:0.8rem;">🔒 即將開放，敬請期待...</div>';
+    return;
+  }
+  units.forEach((u, i) => {
+    const card = document.createElement('button');
+    card.className = 'unit-card' + (i === currentUnitIdx ? ' active' : '');
+    card.textContent = u.topic;
+    card.onclick = () => {
+      currentUnitIdx = i;
+      renderUnitCards();
+      loadUnit();
+    };
+    scroll.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════
+// Phase Switch
+// ══════════════════════════════════════════
+function switchPhase(num) {
+  currentPhase = num;
+  document.querySelectorAll('.phase-container').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.phase-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(`phase${num}`).classList.add('active');
+  document.querySelectorAll('.phase-btn')[num - 1].classList.add('active');
+  if (num === 3) initCanvas();
+}
+
+// ══════════════════════════════════════════
+// Load Unit (populates all 3 phases)
+// ══════════════════════════════════════════
+function loadUnit() {
+  const unit = getCurrentUnit();
+  if (!unit) return;
+
+  // Phase 1
+  buildPhase1(unit);
+  // Phase 2
+  buildPhase2(unit);
+  // Phase 3
+  buildPhase3(unit);
+
+  updateProgress();
+
+  // reset to phase 1
+  if (currentPhase === 3) initCanvas();
+}
+
+// ══════════════════════════════════════════
+// PHASE 1: Look & Listen
+// ══════════════════════════════════════════
+function buildPhase1(unit) {
+  // Topic
+  document.getElementById('p1-topic').innerHTML =
+    `<span class="topic-emoji">📍</span> ${unit.topic}`;
+
+  // Sentence display with chunks
+  const container = document.getElementById('p1-display');
+  container.innerHTML = '';
+  unit.chunks.forEach((chunk, ci) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'chunk-wrap';
+    wrap.id = `p1-c${ci}`;
+
+    // Render each character
+    const chars = [...chunk.text];
+    chars.forEach(ch => {
+      const span = document.createElement('span');
+      span.className = 'chunk-char';
+      span.textContent = ch;
+      // Store the CSS class from highlights
+      const hl = chunk.highlights.find(h => h.target.includes(ch));
+      if (hl) span.dataset.css = hl.cssClass;
+      wrap.appendChild(span);
+    });
+
+    // Click to show note
+    wrap.onclick = () => showChunkNote(chunk);
+
+    container.appendChild(wrap);
+  });
+
+  // Translation
+  document.getElementById('p1-translation').textContent = unit.translation;
+
+  // Notes
+  const noteArea = document.getElementById('p1-note-area');
+  const notes = unit.chunks.flatMap(c =>
+    c.highlights.filter(h => h.note).map(h => h.note)
+  );
+  noteArea.innerHTML = `<div class="p1-note-text">💡 ${notes.length ? notes.join('<br>') : '點擊任何區塊查看提示'}</div>`;
+}
+
+function showChunkNote(chunk) {
+  if (!chunk.highlights.length) return;
+  const hl = chunk.highlights[0];
+  const noteText = hl.note || '';
+  if (!noteText) return;
+
+  // Use modal for note
+  const emoji = noteText.match(/^[\p{Emoji}\u200d]+/u)?.[0] || '💡';
+  document.getElementById('note-emoji').textContent = emoji;
+  document.getElementById('note-title').textContent = chunk.text;
+  document.getElementById('note-body').textContent = noteText;
+  document.getElementById('note-modal').classList.add('open');
+
+  // Also speak the chunk
+  speakJP(chunk.tts || chunk.text, 0.7);
+}
+
+async function playPhase1(speed) {
+  const unit = getCurrentUnit();
+  if (!unit) return;
+  const rate = speed === 'slow' ? 0.55 : 0.9;
+
+  // Reset colors
+  document.querySelectorAll('#p1-display .chunk-char').forEach(el => {
+    el.className = 'chunk-char';
+  });
+
+  // Play each chunk
+  for (let ci = 0; ci < unit.chunks.length; ci++) {
+    const chunk = unit.chunks[ci];
+    const wrap = document.getElementById(`p1-c${ci}`);
+    wrap.classList.add('active-chunk');
+
+    // Light up with colors
+    wrap.querySelectorAll('.chunk-char').forEach(el => {
+      const css = el.dataset.css;
+      if (css) {
+        el.classList.add(css, 'lit');
+      } else {
+        el.classList.add('lit');
+        el.style.color = 'var(--text)';
+      }
+    });
+
+    await speakJP(chunk.tts || chunk.text, rate);
+    wrap.classList.remove('active-chunk');
+  }
+
+  // Full sentence
+  await new Promise(r => setTimeout(r, 300));
+  await speakJP(unit.fullTts || unit.fullSentence, rate + 0.1);
+}
+
+// ══════════════════════════════════════════
+// PHASE 2: Roleplay & Speak
+// ══════════════════════════════════════════
+let hintRevealed = false;
+
+function buildPhase2(unit) {
+  document.getElementById('p2-icon').textContent = unit.kanjiTask?.emoji || '🎭';
+  document.getElementById('p2-instruction').textContent = unit.roleplay.instruction;
+
+  // Hidden hint
+  hintRevealed = false;
+  const hintEl = document.getElementById('p2-hint');
+  hintEl.textContent = unit.fullSentence;
+  hintEl.classList.remove('revealed');
+  hintEl.style.filter = 'blur(8px)';
+  document.getElementById('hint-toggle-btn').textContent = '👁️ 顯示提示';
+
+  // Result
+  document.getElementById('p2-result').textContent = '按下麥克風，大聲說日文！';
+  document.getElementById('p2-result').className = 'p2-result';
+
+  // Keyword chips
+  const chipContainer = document.getElementById('p2-chips');
+  chipContainer.innerHTML = '';
+  unit.roleplay.acceptKeywords.forEach(kw => {
+    const chip = document.createElement('span');
+    chip.className = 'keyword-chip';
+    chip.textContent = kw;
+    chip.dataset.keyword = kw;
+    chipContainer.appendChild(chip);
+  });
+}
+
+function toggleHint() {
+  hintRevealed = !hintRevealed;
+  const hintEl = document.getElementById('p2-hint');
+  if (hintRevealed) {
+    hintEl.classList.add('revealed');
+    hintEl.style.filter = 'none';
+    document.getElementById('hint-toggle-btn').textContent = '🙈 隱藏提示';
+  } else {
+    hintEl.classList.remove('revealed');
+    hintEl.style.filter = 'blur(8px)';
+    document.getElementById('hint-toggle-btn').textContent = '👁️ 顯示提示';
+  }
+}
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = false;
+  recognition.continuous = false;
+}
+
+function startSpeechRecognition() {
+  if (!recognition) {
+    document.getElementById('p2-result').textContent = '瀏覽器不支援語音辨識，請使用 Chrome。';
+    return;
+  }
+  const unit = getCurrentUnit();
+  if (!unit) return;
+
+  const micBtn = document.getElementById('p2-mic-btn');
+  const result = document.getElementById('p2-result');
+  micBtn.classList.add('listening');
+  result.textContent = '聆聽中…大聲說出來！';
+  result.className = 'p2-result';
+
+  recognition.start();
+
+  recognition.onresult = (e) => {
+    micBtn.classList.remove('listening');
+    const transcript = e.results[0][0].transcript;
+
+    // Check keywords
+    const keywords = unit.roleplay.acceptKeywords;
+    let matchCount = 0;
+    keywords.forEach(kw => {
+      const chip = document.querySelector(`[data-keyword="${kw}"]`);
+      if (transcript.includes(kw)) {
+        matchCount++;
+        if (chip) chip.classList.add('matched');
+      }
+    });
+
+    if (matchCount > 0) {
+      result.innerHTML = `🎉 太棒了！聽到了：「${transcript}」`;
+      result.className = 'p2-result success';
+      // Reveal hint
+      const hintEl = document.getElementById('p2-hint');
+      hintEl.classList.add('revealed');
+      hintEl.style.filter = 'none';
+    } else {
+      result.innerHTML = `你說了：「${transcript}」🧐 再試試看！`;
+      result.className = 'p2-result fail';
+    }
+  };
+
+  recognition.onerror = () => {
+    micBtn.classList.remove('listening');
+    result.textContent = '聽不清楚，請再試一次！';
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('listening');
+  };
+}
+
+// ══════════════════════════════════════════
+// PHASE 3: Kanji Handwriting
+// ══════════════════════════════════════════
+const hintCanvas = document.getElementById('p3-hint-canvas');
+const drawCanvas = document.getElementById('p3-draw-canvas');
+const hCtx = hintCanvas.getContext('2d');
+const dCtx = drawCanvas.getContext('2d');
+let isDrawing = false;
+
+function buildPhase3(unit) {
+  if (!unit.kanjiTask) return;
+  const kt = unit.kanjiTask;
+  document.getElementById('p3-emoji').textContent = kt.emoji;
+  document.getElementById('p3-title').textContent = kt.title;
+}
+
+function initCanvas() {
+  hintCanvas.width = CANVAS_SIZE; hintCanvas.height = CANVAS_SIZE;
+  drawCanvas.width = CANVAS_SIZE; drawCanvas.height = CANVAS_SIZE;
+  dCtx.lineCap = 'round'; dCtx.lineJoin = 'round';
+  dCtx.lineWidth = 6; dCtx.strokeStyle = '#333';
+  hasWritten = false;
+
+  // Draw hint character
+  const unit = getCurrentUnit();
+  if (!unit?.kanjiTask) return;
+  hCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  dCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+  hCtx.font = "200px 'Noto Sans JP', sans-serif";
+  hCtx.textAlign = 'center';
+  hCtx.textBaseline = 'middle';
+  hCtx.fillStyle = '#ccc';
+
+  // Wait for font
+  document.fonts.load("200px 'Noto Sans JP'", unit.kanjiTask.target).then(() => {
+    hCtx.fillText(unit.kanjiTask.target, CANVAS_SIZE / 2, CANVAS_SIZE / 2);
+  }).catch(() => {
+    hCtx.fillText(unit.kanjiTask.target, CANVAS_SIZE / 2, CANVAS_SIZE / 2);
+  });
+
+  // Rebind drawing events
+  setupDrawing();
+}
+
+function setupDrawing() {
+  const c = drawCanvas;
+  // Remove old listeners by cloning
+  const clone = c.cloneNode(true);
+  c.parentNode.replaceChild(clone, c);
+
+  // Re-grab references
+  const cv = document.getElementById('p3-draw-canvas');
+  cv.width = CANVAS_SIZE; cv.height = CANVAS_SIZE;
+  const ctx = cv.getContext('2d');
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineWidth = 6; ctx.strokeStyle = '#333';
+
+  function getPos(e) {
+    const rect = cv.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (cx - rect.left) * (cv.width / rect.width),
+      y: (cy - rect.top) * (cv.height / rect.height)
+    };
+  }
+  function start(e) {
+    e.preventDefault(); isDrawing = true; hasWritten = true;
+    const p = getPos(e);
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  }
+  function move(e) {
+    if (!isDrawing) return; e.preventDefault();
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+  }
+  function stop() { isDrawing = false; }
+
+  cv.addEventListener('mousedown', start);
+  cv.addEventListener('mousemove', move);
+  cv.addEventListener('mouseup', stop);
+  cv.addEventListener('touchstart', start, {passive:false});
+  cv.addEventListener('touchmove', move, {passive:false});
+  cv.addEventListener('touchend', stop);
+}
+
+function clearCanvas() {
+  const cv = document.getElementById('p3-draw-canvas');
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  hasWritten = false;
+}
+
+async function submitKanji() {
+  if (!hasWritten) { showPopup('請先寫字喔！✍️'); return; }
+
+  const unit = getCurrentUnit();
+  if (!unit?.kanjiTask) return;
+  const target = unit.kanjiTask.target;
+
+  const overlay = document.getElementById('grading-overlay');
+  overlay.classList.remove('hidden');
+
+  let score, desc, cls;
+
+  if (GEMINI_KEY) {
+    const result = await recognizeKanjiWithGemini(target);
+    overlay.classList.add('hidden');
+
+    if (result !== null) {
+      showOcrToast(result, target);
+      if (result === target) {
+        score = 12; desc = '完美辨識！'; cls = 'perfect';
+      } else {
+        score = 3; desc = `AI 看成「${result}」`; cls = 'bad';
+      }
+    } else {
+      score = 6; desc = '已完成（AI 無回應）'; cls = 'ok';
+    }
+  } else {
+    overlay.classList.add('hidden');
+    score = 6; desc = '已完成（無 AI 評分）'; cls = 'ok';
+  }
+
+  totalScore += score;
+  showScorePopup(score, desc, cls);
+  updateProgress();
+
+  // Auto advance after delay
+  setTimeout(() => {
+    document.querySelector('.score-popup')?.remove();
+    // Move to next unit
+    const units = getCurrentUnits();
+    if (currentUnitIdx < units.length - 1) {
+      currentUnitIdx++;
+      renderUnitCards();
+      loadUnit();
+      switchPhase(1);
+    }
+  }, 2500);
+}
+
+async function recognizeKanjiWithGemini(target) {
+  const cv = document.getElementById('p3-draw-canvas');
+  const imageData = cv.toDataURL('image/png').split(',')[1];
+  const prompt = `你是一個手寫日文漢字辨識器。使用者在畫布上寫了一個漢字。
+你的唯一任務：辨識這個手寫的漢字是什麼。
+目標字：${target}
+- 只回傳你看到的那一個漢字。
+- 如果看不清楚回傳「？」。
+- 回傳 JSON 格式：{"char": "你看到的字"}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { inlineData: { mimeType: 'image/png', data: imageData } },
+            { text: prompt }
+          ]}]
+        })
+      }
+    );
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    return parsed.char || '？';
+  } catch (err) {
+    console.error('Gemini OCR error:', err);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════
+// Kanji Story Modal
+// ══════════════════════════════════════════
+function openStoryModal() {
+  const unit = getCurrentUnit();
+  if (!unit?.kanjiTask) return;
+  const kt = unit.kanjiTask;
+  document.getElementById('story-emoji').textContent = kt.emoji;
+  document.getElementById('story-title').textContent = kt.title;
+  document.getElementById('story-body').textContent = kt.story;
+  document.getElementById('story-modal').classList.add('open');
+}
+function closeStoryModal() {
+  document.getElementById('story-modal').classList.remove('open');
+}
+function readStory() {
+  const unit = getCurrentUnit();
+  if (unit?.kanjiTask?.story) speakZH(unit.kanjiTask.story);
+}
+
+// ══════════════════════════════════════════
+// UI Helpers
+// ══════════════════════════════════════════
+function updateProgress() {
+  const units = getCurrentUnits();
+  const total = units.length;
+  document.getElementById('progress-label').textContent = `${currentUnitIdx + 1} / ${total}`;
+  const pct = total > 0 ? ((currentUnitIdx + 1) / total * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('score-label').textContent = totalScore + ' 分';
+}
+
+function showScorePopup(points, desc, cls) {
+  const existing = document.querySelector('.score-popup');
+  if (existing) existing.remove();
+  const emoji = points >= 12 ? '🎆' : points >= 10 ? '✨' : points >= 6 ? '👌' : '💧';
+  const div = document.createElement('div');
+  div.className = `score-popup ${cls} show`;
+  div.innerHTML = `<span class="score-val">+${points}</span><span class="score-desc">${emoji} ${desc}</span>`;
+  document.body.appendChild(div);
+}
+
+function showOcrToast(seen, expected) {
+  const isCorrect = seen === expected;
+  const toast = document.createElement('div');
+  toast.className = 'ocr-toast';
+  toast.innerHTML = `<div class="ocr-row">
+    <span class="ocr-seen">${seen}</span>
+    <span style="color:var(--text-muted)">→</span>
+    <span>${expected}</span>
+    <span class="${isCorrect ? 'ocr-ok' : 'ocr-ng'}">${isCorrect ? '✅' : '❌'}</span>
+  </div>`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function showPopup(msg) {
+  const div = document.createElement('div');
+  div.className = 'ocr-toast';
+  div.textContent = msg;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2000);
+}
+
+// ══════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Load saved settings
+  try {
+    GEMINI_KEY = localStorage.getItem('jd-gemini-key') || '';
+    tripDate = localStorage.getItem('jd-trip-date') || null;
+  } catch(e) {}
+
+  updateCountdown();
+  updateNoKeyBanner();
+  renderMonthTabs();
+  renderUnitCards();
+  loadUnit();
+});
+</script>
+</body>
+</html>
