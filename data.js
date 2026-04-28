@@ -529,12 +529,407 @@ month_1: {
 month_2: {
   title: "第二個月：導航指引",
   subtitle: "聽懂導航、問路、方位",
-  units: []
+  units: [
+
+  // ──────────────── 🗺️ 導航聽力破解 (10 句) ────────────────
+  {
+    id:"navi_01", category:"month_2", theme:"navigation",
+    topic:"導航起手式：準備右轉",
+    fullSentence:"まもなく、右方向です", translation:"前方即將向右轉。", fullTts:"まもなく、みぎほうこうです",
+    chunks:[
+      {text:"まもなく",tts:"まもなく",type:"noun",highlights:[{target:"まもなく",cssClass:"color-noun-green",note:"⏳ 即將。看到這句腳就可以放上煞車準備了。"}]},
+      {text:"右方向",tts:"みぎほうこう",type:"noun",highlights:[{target:"右方向",cssClass:"color-noun-green",note:"➡ 往右邊的方向。"}]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"導航發出提示音，請複誦即將前進的方向：向右轉。",acceptKeywords:["右","みぎ","方向"]},
+    kanjiTask:{target:"右",hint:"右",emoji:"➡️",title:"➡️ 右（右手吃飯）",story:"上方是手，下方是『口』。大多數人用右手拿筷子吃飯放進口中，這就是『右』！"}
+  },
+  {
+    id:"navi_02", category:"month_2", theme:"navigation",
+    topic:"距離預告：準備左轉",
+    fullSentence:"およそ300メートル先、左折です", translation:"大約 300 公尺後，請左轉。", fullTts:"およそさんびゃくめーとるさき、させつです",
+    chunks:[
+      {text:"およそ",tts:"およそ",type:"noun",highlights:[{target:"およそ",cssClass:"color-noun-green",note:"📏 大約。導航報距離前常加這句。"}]},
+      {text:"300メートル",tts:"さんびゃくめーとる",type:"noun",highlights:[]},
+      {text:"先",tts:"さき",type:"noun",highlights:[{target:"先",cssClass:"color-noun-green",note:"📍 前方。"}]},
+      {text:"左折",tts:"させつ",type:"noun",highlights:[{target:"左折",cssClass:"color-noun-green",note:"⬅️ 左折＝左轉。"}]}
+    ],
+    roleplay:{instruction:"聽到距離提示，請告訴副駕駛：「要左轉了」。",acceptKeywords:["左折","させつ","左"]},
+    kanjiTask:{target:"左",hint:"左",emoji:"⬅️",title:"⬅️ 左（左手拿工具）",story:"上方是手，下方是『工』(工具)。左手用來輔助拿工具做工，這就是『左』！"}
+  },
+  {
+    id:"navi_03", category:"month_2", theme:"navigation",
+    topic:"複雜路口：斜向行駛",
+    fullSentence:"斜め左方向です", translation:"請往斜左方行駛。", fullTts:"ななめひだりほうこうです",
+    chunks:[
+      {text:"斜め",tts:"ななめ",type:"noun",highlights:[{target:"斜め",cssClass:"color-noun-green",note:"📐 斜的。日本很多 Y 字型路口，指向左前斜方。"}]},
+      {text:"左方向",tts:"ひだりほうこう",type:"noun",highlights:[]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"遇到 Y 字路口，導航指示怎麼走？請大聲說：「斜左方」。",acceptKeywords:["斜め","ななめ","左"]},
+    kanjiTask:{target:"斜",hint:"斜",emoji:"📐",title:"📐 斜（倒出來的樣子）",story:"右邊『斗』是量米勺，傾斜把米倒出來就是斜！"}
+  },
+  {
+    id:"navi_04", category:"month_2", theme:"navigation",
+    topic:"旅途終點：抵達目的地",
+    fullSentence:"目的地付近です", translation:"已接近目的地。", fullTts:"もくてきちふきんです",
+    chunks:[
+      {text:"目的地",tts:"もくてきち",type:"noun",highlights:[{target:"目的地",cssClass:"color-noun-green",note:"🏁 目的地。"}]},
+      {text:"付近",tts:"ふきん",type:"noun",highlights:[{target:"付近",cssClass:"color-noun-green",note:"📍 附近。聽到這句就要開始找停車場了。"}]}
+    ],
+    roleplay:{instruction:"導航宣佈快到了，請提醒家人：「目的地附近了」。",acceptKeywords:["目的地","もくてきち","付近"]},
+    kanjiTask:{target:"目",hint:"目",emoji:"👁️",title:"👁️ 目（眼睛的樣子）",story:"這就是畫出一隻站立的眼睛。設定目的地就是把『目光』投向那個地方！"}
+  },
+  {
+    id:"navi_05", category:"month_2", theme:"navigation",
+    topic:"開錯路了：偏離路線",
+    fullSentence:"ルートを外れました", translation:"已偏離規劃路線。", fullTts:"るーとをはずれました",
+    chunks:[
+      {text:"ルート",tts:"るーと",type:"noun",highlights:[{target:"ルート",cssClass:"color-noun-green",note:"🛣️ Route (路線)。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"外れました",tts:"はずれました",type:"verb",highlights:[{target:"外れました",cssClass:"color-verb-blue",note:"⚠️ 掉出去了、偏離了。"}]}
+    ],
+    roleplay:{instruction:"不小心錯過轉彎，導航發出警告，請覆頌：「偏離路線了」。",acceptKeywords:["ルート","外れました"]},
+    kanjiTask:{target:"外",hint:"外",emoji:"🚪",title:"🚪 外（晚上的占卜）",story:"左邊是夕陽，右邊是占卜的卜。在外面占卜到很晚，這就是外！"}
+  },
+  {
+    id:"navi_06", category:"month_2", theme:"navigation",
+    topic:"重新計算：尋找新路線",
+    fullSentence:"ルートを再検索します", translation:"正在重新搜尋路線。", fullTts:"るーとをさいけんさくします",
+    chunks:[
+      {text:"ルート",tts:"るーと",type:"noun",highlights:[]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"再検索",tts:"さいけんさく",type:"noun",highlights:[{target:"再",cssClass:"color-noun-green",note:"🔄 再次。重新計算中。"}]},
+      {text:"します",tts:"します",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"導航正在重新繞路，請告訴駕駛：「正在重新搜尋」。",acceptKeywords:["再検索","さいけんさく"]},
+    kanjiTask:{target:"再",hint:"再",emoji:"🔄",title:"🔄 再（第二次）",story:"魚網掛起來再用一次，代表重複、第二次的意思。"}
+  },
+  {
+    id:"navi_07", category:"month_2", theme:"navigation",
+    topic:"導航提醒：道なり",
+    fullSentence:"しばらく道なりです", translation:"請沿著這條路直行一段時間。", fullTts:"しばらくみちなりです",
+    chunks:[
+      {text:"しばらく",tts:"しばらく",type:"noun",highlights:[{target:"しばらく",cssClass:"color-noun-green",note:"⏳ 一段時間。"}]},
+      {text:"道なり",tts:"みちなり",type:"noun",highlights:[{target:"道なり",cssClass:"color-noun-green",note:"🛤️ 順著路。不用轉彎一直開。"}]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"導航要你直走，請告訴駕駛：「順著路開就好」。",acceptKeywords:["道なり","みちなり","しばらく"]},
+    kanjiTask:{target:"道",hint:"道",emoji:"🛤️",title:"🛤️ 道（帶著頭走在路上）",story:"『辶』是走，『首』是頭。腦袋看著前方在路上走，就是道路！"}
+  },
+  {
+    id:"navi_08", category:"month_2", theme:"navigation",
+    topic:"終點側位：目的地在左側",
+    fullSentence:"目的地は左側です", translation:"目的地就在左手邊。", fullTts:"もくてきちはひだりがわです",
+    chunks:[
+      {text:"目的地",tts:"もくてきち",type:"noun",highlights:[]},
+      {text:"は",tts:"わ",type:"particle",highlights:[]},
+      {text:"左側",tts:"ひだりがわ",type:"noun",highlights:[{target:"側",cssClass:"color-noun-green",note:"📐 側邊。注意看左邊的路邊。"}]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"快到了，請指引駕駛：「在左邊喔」。",acceptKeywords:["左側","ひだりがわ","左"]},
+    kanjiTask:{target:"側",hint:"側",emoji:"📐",title:"📐 側（人站在旁邊）",story:"左邊是人，右邊是法則。人站在標準的旁邊，就是側邊。"}
+  },
+  {
+    id:"navi_09", category:"month_2", theme:"navigation",
+    topic:"注意標誌：實際交通規制",
+    fullSentence:"実際の交通規制に従ってください", translation:"請遵循實際的交通規則。", fullTts:"じっさいのこうつうきせいにしたがってください",
+    chunks:[
+      {text:"実際の",tts:"じっさいの",type:"noun",highlights:[]},
+      {text:"交通規制",tts:"こうつうきせい",type:"noun",highlights:[{target:"規制",cssClass:"color-noun-green",note:"🚧 交通管制/規則。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"従って",tts:"したがって",type:"verb",highlights:[{target:"従って",cssClass:"color-verb-blue",note:"🤝 遵循、跟從。"}]},
+      {text:"ください",tts:"ください",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"導航提醒你不要只看螢幕，請覆讀：「遵循實際規則」。",acceptKeywords:["規制","従って","きせい"]},
+    kanjiTask:{target:"規",hint:"規",emoji:"📏",title:"📏 規（大丈夫看見標準）",story:"左邊是夫，右邊是見。成年男子看見了準則，就要遵守規定。"}
+  },
+  {
+    id:"navi_10", category:"month_2", theme:"navigation",
+    topic:"導航結束",
+    fullSentence:"ガイドを終了します", translation:"導航結束。", fullTts:"がいどをしゅうりょうします",
+    chunks:[
+      {text:"ガイド",tts:"がいど",type:"noun",highlights:[{target:"ガイド",cssClass:"color-noun-green",note:"🎙️ Guide (導引)。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"終了",tts:"しゅうりょう",type:"noun",highlights:[{target:"終了",cssClass:"color-noun-green",note:"🏁 結束。"}]},
+      {text:"します",tts:"します",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"停好車導航關閉了，請說：「導航結束」。",acceptKeywords:["終了","しゅうりょう","ガイド"]},
+    kanjiTask:{target:"終",hint:"終",emoji:"🏁",title:"🏁 終（絲線的盡頭）",story:"左邊是絲，右邊是冬（末尾）。絲線纏繞到最後，就是終點。"}
+  },
+
+  // ──────────────── 🚥 路口與動線 (10 句) ────────────────
+  {
+    id:"flow_01", category:"month_2", theme:"flow",
+    topic:"看懂路標：十字路口",
+    fullSentence:"次の交差点を、右に曲がってください", translation:"請在下一個十字路口向右轉。", fullTts:"つぎのこうさてんを、みぎにまがってください",
+    chunks:[
+      {text:"次の",tts:"つぎの",type:"noun",highlights:[{target:"次",cssClass:"color-noun-green",note:"⏭️ 下一個。"}]},
+      {text:"交差点",tts:"こうさてん",type:"noun",highlights:[{target:"交差点",cssClass:"color-noun-green",note:"🚥 十字路口。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[{target:"を",cssClass:"color-particle-red",note:"🔴 經過、通過的空間助詞。"}]},
+      {text:"右に",tts:"みぎに",type:"noun",highlights:[]},
+      {text:"曲がって",tts:"まがって",type:"verb",highlights:[{target:"曲がって",cssClass:"color-verb-blue",note:"↩️ 轉彎。"}]},
+      {text:"ください",tts:"ください",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"導航要你在下一個十字路口轉彎，請跟著唸：「下一個十字路口右轉」。",acceptKeywords:["交差点","こうさてん","曲がって"]},
+    kanjiTask:{target:"交",hint:"交",emoji:"🚥",title:"🚥 交（雙腿交叉）",story:"這就像人雙腿交叉站立。道路互相交叉的地方就是十字路口！"}
+  },
+  {
+    id:"flow_02", category:"month_2", theme:"flow",
+    topic:"數紅綠燈",
+    fullSentence:"一つ目の信号を左です", translation:"在第一個紅綠燈左轉。", fullTts:"ひとつめのしんごうをひだりです",
+    chunks:[
+      {text:"一つ目の",tts:"ひとつめの",type:"noun",highlights:[{target:"一つ目",cssClass:"color-noun-green",note:"1️⃣ 第一個。「～目」是第幾的意思。"}]},
+      {text:"信号",tts:"しんごう",type:"noun",highlights:[{target:"信号",cssClass:"color-noun-green",note:"🚦 紅綠燈。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"左",tts:"ひだり",type:"noun",highlights:[]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"副駕問你要在哪轉彎，請回答：「第一個紅綠燈」。",acceptKeywords:["信号","しんごう","一つ目"]},
+    kanjiTask:{target:"信",hint:"信",emoji:"🚦",title:"🚦 信（人言為信）",story:"人說的話要有信用。交通『信号』就是道路給駕駛的信用信號。"}
+  },
+  {
+    id:"flow_03", category:"month_2", theme:"flow",
+    topic:"走到底：T字路",
+    fullSentence:"突き当たりを右に曲がります", translation:"走到底後向右轉。", fullTts:"つきあたりをみぎにまがります",
+    chunks:[
+      {text:"突き当たり",tts:"つきあたり",type:"noun",highlights:[{target:"突き当たり",cssClass:"color-noun-green",note:"🚧 道路盡頭、T字路口。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"右に",tts:"みぎに",type:"noun",highlights:[]},
+      {text:"曲がります",tts:"まがります",type:"verb",highlights:[{target:"曲がります",cssClass:"color-verb-blue",note:"↩️ 轉彎（禮貌體）。"}]}
+    ],
+    roleplay:{instruction:"前方看起來沒路了，請告訴車上的人：「走到底右轉」。",acceptKeywords:["突き当たり","つきあたり","曲がります"]},
+    kanjiTask:{target:"突",hint:"突",emoji:"🚧",title:"🚧 突（狗從洞口衝出）",story:"狗突然從洞口衝出來。走到馬路突然沒路的地方，就是突き当たり。"}
+  },
+  {
+    id:"flow_04", category:"month_2", theme:"flow",
+    topic:"路口順序：第三個角",
+    fullSentence:"三つ目の角を右です", translation:"在第三個轉角往右。", fullTts:"みっつめのかどをみぎです",
+    chunks:[
+      {text:"三つ目の",tts:"みっつめの",type:"noun",highlights:[{target:"三つ目",cssClass:"color-noun-green",note:"3️⃣ 第三個。"}]},
+      {text:"角",tts:"かど",type:"noun",highlights:[{target:"角",cssClass:"color-noun-green",note:"📐 轉角、角落。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"右",tts:"みぎ",type:"noun",highlights:[]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"數到第三個巷口時提醒駕駛：「第三個轉角右轉」。",acceptKeywords:["三つ目","角","かど"]},
+    kanjiTask:{target:"角",hint:"角",emoji:"📐",title:"📐 角（動物的角）",story:"這就是畫出一支動物的硬角。路的轉角就像尖尖的角一樣。"}
+  },
+  {
+    id:"flow_05", category:"month_2", theme:"flow",
+    topic:"穿越標誌：高架下",
+    fullSentence:"高架下を通過します", translation:"通過高架道路下方。", fullTts:"こうかしたをつうかします",
+    chunks:[
+      {text:"高架下",tts:"こうかした",type:"noun",highlights:[{target:"高架下",cssClass:"color-noun-green",note:"🌉 高架橋下。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"通過",tts:"つうか",type:"noun",highlights:[{target:"通過",cssClass:"color-noun-green",note:"🚗 通過。"}]},
+      {text:"します",tts:"します",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"準備穿過大橋下方，請跟著說：「通過高架下」。",acceptKeywords:["高架下","通過","つうか"]},
+    kanjiTask:{target:"架",hint:"架",emoji:"🌉",title:"🌉 架（木頭加力）",story:"下方是木，上方是加。用木頭增加高度撐起來，就是高架橋。"}
+  },
+  {
+    id:"flow_06", category:"month_2", theme:"flow",
+    topic:"重要動線：跨越陸橋",
+    fullSentence:"陸橋を渡ります", translation:"跨越陸橋。", fullTts:"りっきょうをわたります",
+    chunks:[
+      {text:"陸橋",tts:"りっきょう",type:"noun",highlights:[{target:"陸橋",cssClass:"color-noun-green",note:"🌉 陸橋。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"渡ります",tts:"わたります",type:"verb",highlights:[{target:"渡ります",cssClass:"color-verb-blue",note:"🚶 跨越、過橋。"}]}
+    ],
+    roleplay:{instruction:"準備上橋，請宣告：「過陸橋」。",acceptKeywords:["陸橋","渡ります","わたります"]},
+    kanjiTask:{target:"渡",hint:"渡",emoji:"🌉",title:"🌉 渡（水邊度過）",story:"左邊是水，右邊是度。原本指度過河川，現在開車過橋也用這個字。"}
+  },
+  {
+    id:"flow_07", category:"month_2", theme:"flow",
+    topic:"出隧道即轉",
+    fullSentence:"トンネルを出てすぐ右です", translation:"出隧道後立刻右轉。", fullTts:"とんねるをでてすぐみぎです",
+    chunks:[
+      {text:"トンネル",tts:"とんねる",type:"noun",highlights:[{target:"トンネル",cssClass:"color-noun-green",note:"🚇 Tunnel。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"出て",tts:"でて",type:"verb",highlights:[{target:"出て",cssClass:"color-verb-blue",note:"🚪 出去。"}]},
+      {text:"すぐ",tts:"すぐ",type:"noun",highlights:[{target:"すぐ",cssClass:"color-noun-green",note:"⚡ 立刻、馬上。"}]},
+      {text:"右",tts:"みぎ",type:"noun",highlights:[]},
+      {text:"です",tts:"です",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"隧道裡導航收訊不好，出洞口前先提醒：「出隧道馬上右轉」。",acceptKeywords:["トンネル","出て","右"]},
+    kanjiTask:{target:"出",hint:"出",emoji:"🚪",title:"🚪 出（山上長山）",story:"就像兩座山疊在一起向上長，代表出去、長出來的意思。"}
+  },
+  {
+    id:"flow_08", category:"month_2", theme:"flow",
+    topic:"動線變換：進入側道",
+    fullSentence:"側道に入ります", translation:"進入側車道。", fullTts:"そくどうにはいります",
+    chunks:[
+      {text:"側道",tts:"そくどう",type:"noun",highlights:[{target:"側道",cssClass:"color-noun-green",note:"🛤️ 側車道。通常是下交流道前的預備道。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"入ります",tts:"はいります",type:"verb",highlights:[{target:"入ります",cssClass:"color-verb-blue",note:"📥 進入。"}]}
+    ],
+    roleplay:{instruction:"導航要你切換車道，請說：「進側道」。",acceptKeywords:["側道","入ります","そくどう"]},
+    kanjiTask:{target:"側",hint:"側",emoji:"📐",title:"📐 側（人站在旁邊）",story:"人站在法則(標準)的旁邊。主幹道旁邊的小路就是側道。"}
+  },
+  {
+    id:"flow_09", category:"month_2", theme:"flow",
+    topic:"鐵道動線：過平交道",
+    fullSentence:"踏切を渡ります", translation:"穿越平交道。", fullTts:"ふみきりをわたります",
+    chunks:[
+      {text:"踏切",tts:"ふみきり",type:"noun",highlights:[{target:"踏切",cssClass:"color-noun-green",note:"🚂 平交道。記得先停再走！"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"渡ります",tts:"わたります",type:"verb",highlights:[{target:"渡ります",cssClass:"color-verb-blue",note:"🚶 穿越。"}]}
+    ],
+    roleplay:{instruction:"要過鐵軌了，請提醒全家：「過平交道囉」。",acceptKeywords:["踏切","ふみきり","渡ります"]},
+    kanjiTask:{target:"切",hint:"切",emoji:"🔪",title:"🔪 切（用刀割開）",story:"左邊是七，右邊是刀。用刀把東西分開。平交道就是把道路『切開』讓火車過。"}
+  },
+  {
+    id:"flow_10", category:"month_2", theme:"flow",
+    topic:"匯入幹道：合流",
+    fullSentence:"本線に合流します", translation:"匯入主線車道。", fullTts:"ほんせんにごうりゅうします",
+    chunks:[
+      {text:"本線",tts:"ほんせん",type:"noun",highlights:[{target:"本線",cssClass:"color-noun-green",note:"🛣️ 幹線、主線。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"合流",tts:"ごうりゅう",type:"noun",highlights:[{target:"合流",cssClass:"color-noun-green",note:"🤝 匯流。要小心左方或右方來車。"}]},
+      {text:"します",tts:"します",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"要上高速公路主線了，請大聲說：「合流」。",acceptKeywords:["本線","合流","ごうりゅう"]},
+    kanjiTask:{target:"合",hint:"合",emoji:"🤝",title:"🤝 合（蓋上蓋子）",story:"上方是蓋子，下方是口。蓋子蓋在容器上完美契合，就是匯合！"}
+  },
+
+  // ──────────────── 😵 迷路與問路生存 (10 句) ────────────────
+  {
+    id:"help_01", category:"month_2", theme:"help",
+    topic:"尋找救星：加油站",
+    fullSentence:"近くにガソリンスタンドはありますか", translation:"請問附近有加油站嗎？", fullTts:"ちかくにがそりんすたんどはありますか",
+    chunks:[
+      {text:"近く",tts:"ちかく",type:"noun",highlights:[{target:"近く",cssClass:"color-noun-green",note:"📍 附近。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[{target:"に",cssClass:"color-particle-red",note:"🔴 存在空間助詞：在～地方。"}]},
+      {text:"ガソリンスタンド",tts:"がそりんすたんど",type:"noun",highlights:[{target:"ガソリンスタンド",cssClass:"color-noun-green",note:"⛽ Gas Station。"}]},
+      {text:"は",tts:"わ",type:"particle",highlights:[]},
+      {text:"ありますか",tts:"ありますか",type:"verb",highlights:[{target:"ありますか",cssClass:"color-verb-blue",note:"❓ 有～嗎？"}]}
+    ],
+    roleplay:{instruction:"油表見底了，趕快問路人：「附近有加油站嗎？」",acceptKeywords:["近く","ちかく","ガソリン"]},
+    kanjiTask:{target:"近",hint:"近",emoji:"🗺️",title:"🗺️ 近（拿斧頭劈路）",story:"拿斧頭劈開障礙走捷徑，很快就到了，這就是近！"}
+  },
+  {
+    id:"help_02", category:"month_2", theme:"help",
+    topic:"承認迷路",
+    fullSentence:"道に迷いました", translation:"我迷路了。", fullTts:"みちにまよいました",
+    chunks:[
+      {text:"道",tts:"みち",type:"noun",highlights:[{target:"道",cssClass:"color-noun-green",note:"🛣️ 道路。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"迷いました",tts:"まよいました",type:"verb",highlights:[{target:"迷いました",cssClass:"color-verb-blue",note:"😵 迷失。求救第一句話！"}]}
+    ],
+    roleplay:{instruction:"導航壞了，看到警察，請無助地說：「我迷路了」。",acceptKeywords:["道","迷いました","まよいました"]},
+    kanjiTask:{target:"迷",hint:"迷",emoji:"😵",title:"😵 迷（走到滿地米）",story:"在路上到處亂繞、失去方向，就像掉進米堆裡一樣迷失。"}
+  },
+  {
+    id:"help_03", category:"month_2", theme:"help",
+    topic:"返回原本的路",
+    fullSentence:"元の道に戻ります", translation:"返回原來的路。", fullTts:"もとのみちにもどります",
+    chunks:[
+      {text:"元の",tts:"もとの",type:"noun",highlights:[{target:"元",cssClass:"color-noun-green",note:"🔙 原本的。"}]},
+      {text:"道",tts:"みち",type:"noun",highlights:[]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"戻ります",tts:"もどります",type:"verb",highlights:[{target:"戻ります",cssClass:"color-verb-blue",note:"↩️ 返回。"}]}
+    ],
+    roleplay:{instruction:"開錯路了，請告訴大家：「回原路去」。",acceptKeywords:["戻ります","もどります","道"]},
+    kanjiTask:{target:"戻",hint:"戻",emoji:"🔙",title:"🔙 戻（卡在門口的狗）",story:"一隻大狗想鑽出門卻被卡住，只好退回去。這就是返回！"}
+  },
+  {
+    id:"help_04", category:"month_2", theme:"help",
+    topic:"確認目的地方向",
+    fullSentence:"この道は高速道路に行きますか", translation:"這條路會通往高速公路嗎？", fullTts:"このみちはこうそくどうろにいきますか",
+    chunks:[
+      {text:"この",tts:"この",type:"noun",highlights:[]},
+      {text:"道",tts:"みち",type:"noun",highlights:[]},
+      {text:"は",tts:"わ",type:"particle",highlights:[]},
+      {text:"高速道路",tts:"こうそくどうろ",type:"noun",highlights:[{target:"高速道路",cssClass:"color-noun-green",note:"🛣️ 高速公路。"}]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"行きますか",tts:"いきますか",type:"verb",highlights:[{target:"行きますか",cssClass:"color-verb-blue",note:"❓ 會去～嗎？（確認方向）"}]}
+    ],
+    roleplay:{instruction:"不確定有沒有開錯，問旁邊的店員：「這條路會上國道嗎？」",acceptKeywords:["高速道路","行きますか","こうそく"]},
+    kanjiTask:{target:"速",hint:"速",emoji:"⚡",title:"⚡ 速（拿著束袋走）",story:"手裡拿著捆好的袋子快走，代表速度很快。"}
+  },
+  {
+    id:"help_05", category:"month_2", theme:"help",
+    topic:"詢問停車場",
+    fullSentence:"近くに駐車場はありますか", translation:"這附近有停車場嗎？", fullTts:"ちかくにちゅうしゃじょうはありますか",
+    chunks:[
+      {text:"近く",tts:"ちかく",type:"noun",highlights:[]},
+      {text:"に",tts:"に",type:"particle",highlights:[]},
+      {text:"駐車場",tts:"ちゅうしゃじょう",type:"noun",highlights:[{target:"駐車場",cssClass:"color-noun-green",note:"🅿️ 停車場。"}]},
+      {text:"は",tts:"わ",type:"particle",highlights:[]},
+      {text:"ありますか",tts:"ありますか",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"到了景點找不到車位，問路人：「附近有停車場嗎？」",acceptKeywords:["駐車場","ちゅうしゃじょう"]},
+    kanjiTask:{target:"場",hint:"場",emoji:"🏟️",title:"🏟️ 場（陽光照在土地上）",story:"陽光充足、開闊的一塊平地，就是活動的場所。"}
+  },
+  {
+    id:"help_06", category:"month_2", theme:"help",
+    topic:"請求指圖",
+    fullSentence:"地図を指してもらえますか", translation:"可以請你在地圖上指給我看嗎？", fullTts:"ちずをさしてもらえますか",
+    chunks:[
+      {text:"地図",tts:"ちず",type:"noun",highlights:[{target:"地図",cssClass:"color-noun-green",note:"🗺️ 地圖。"}]},
+      {text:"を",tts:"を",type:"particle",highlights:[]},
+      {text:"指して",tts:"さして",type:"verb",highlights:[{target:"指して",cssClass:"color-verb-blue",note:"☝️ 指點。"}]},
+      {text:"もらえますか",tts:"もらえますか",type:"verb",highlights:[{target:"もらえますか",cssClass:"color-verb-blue",note:"🙏 能幫我～嗎？（超禮貌請求）"}]}
+    ],
+    roleplay:{instruction:"聽不懂路人解釋，拿出地圖問：「能幫我指出來嗎？」",acceptKeywords:["地図","指して","ちず"]},
+    kanjiTask:{target:"指",hint:"指",emoji:"☝️",title:"☝️ 指（手指的旨意）",story:"左邊是手，右邊是旨(命令)。用手表達意圖，就是指。"}
+  },
+  {
+    id:"help_07", category:"month_2", theme:"help",
+    topic:"發現逆向：危險警告",
+    fullSentence:"逆走してしまいました", translation:"我不小心逆向行駛了。", fullTts:"ぎゃくそうしてしまいました",
+    chunks:[
+      {text:"逆走",tts:"ぎゃくそう",type:"noun",highlights:[{target:"逆走",cssClass:"color-noun-green",note:"🚫 逆向行駛！非常危險。"}]},
+      {text:"して",tts:"して",type:"verb",highlights:[]},
+      {text:"しまいました",tts:"しまいました",type:"verb",highlights:[{target:"しまいました",cssClass:"color-verb-blue",note:"😰 糟了（表遺憾、錯誤）。"}]}
+    ],
+    roleplay:{instruction:"發現開錯方向了，驚慌地告訴副駕：「逆向了！」",acceptKeywords:["逆走","ぎゃくそう","逆"]},
+    kanjiTask:{target:"逆",hint:"逆",emoji:"🚫",title:"🚫 逆（倒著走）",story:"這就像一個人倒著走路，跟前進的方向相反。"}
+  },
+  {
+    id:"help_08", category:"month_2", theme:"help",
+    topic:"開過頭了",
+    fullSentence:"通り過ぎてしまいました", translation:"開過頭了。", fullTts:"とおりすぎてしまいました",
+    chunks:[
+      {text:"通り過ぎて",tts:"とおりすぎて",type:"verb",highlights:[{target:"過ぎて",cssClass:"color-verb-blue",note:"🚶 通過且超過了。"}]},
+      {text:"しまいました",tts:"しまいました",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"錯過轉角了，懊惱地說：「開過頭了」。",acceptKeywords:["通り過ぎて","すぎました","過"]},
+    kanjiTask:{target:"過",hint:"過",emoji:"🚶",title:"🚶 過（經過骨頭）",story:"帶著骨頭走在路上，代表走了一段路，有經過、超過的意思。"}
+  },
+  {
+    id:"help_09", category:"month_2", theme:"help",
+    topic:"確認可否迴轉",
+    fullSentence:"ここでUターンできますか", translation:"這裡可以 U 轉（迴轉）嗎？", fullTts:"ここでゆーたーんできますか",
+    chunks:[
+      {text:"ここ",tts:"ここ",type:"noun",highlights:[]},
+      {text:"で",tts:"で",type:"particle",highlights:[]},
+      {text:"Uターン",tts:"ゆーたーん",type:"noun",highlights:[{target:"Uターン",cssClass:"color-noun-green",note:"↩️ U-Turn 迴轉。"}]},
+      {text:"できますか",tts:"できますか",type:"verb",highlights:[{target:"できますか",cssClass:"color-verb-blue",note:"❓ 可以嗎？能不能？"}]}
+    ],
+    roleplay:{instruction:"想迴轉但怕違規，問本地人：「這能迴轉嗎？」",acceptKeywords:["Uターン","できますか"]},
+    kanjiTask:{target:"転",hint:"転",emoji:"↩️",title:"↩️ 転（車子滾動）",story:"左邊是車，右邊是云(轉動)。車輪滾動旋轉，就是轉。"}
+  },
+  {
+    id:"help_10", category:"month_2", theme:"help",
+    topic:"找廁所：小孩緊急需求",
+    fullSentence:"一番近いトイレはどこですか", translation:"最近的廁所在哪裡？", fullTts:"いちばんちかいといれはどこですか",
+    chunks:[
+      {text:"一番",tts:"いちばん",type:"noun",highlights:[{target:"一番",cssClass:"color-noun-green",note:"🥇 第一、最。"}]},
+      {text:"近い",tts:"ちかい",type:"noun",highlights:[{target:"近い",cssClass:"color-noun-green",note:"📍 近的。"}]},
+      {text:"トイレ",tts:"といれ",type:"noun",highlights:[{target:"トイレ",cssClass:"color-noun-green",note:"🚻 廁所。"}]},
+      {text:"は",tts:"わ",type:"particle",highlights:[]},
+      {text:"どこ",tts:"どこ",type:"noun",highlights:[{target:"どこ",cssClass:"color-noun-green",note:"❓ 哪裡？"}]},
+      {text:"ですか",tts:"ですか",type:"verb",highlights:[]}
+    ],
+    roleplay:{instruction:"小孩急著上廁所，趕快問便利店店員：「最近的廁所在哪？」",acceptKeywords:["トイレ","近い","どこ"]},
+    kanjiTask:{target:"番",hint:"番",emoji:"🥇",title:"🥇 番（土地的分區）",story:"上方是種子，下方是田。把田分區編號，就是號碼、輪流的意思。"}
+  }
+
+  ] // end month_2 units
 },
 
-// ┌─────────────────────────────────────────────────────────┐
-// │  第三個月：實戰對話（待擴展）                             │
-// └─────────────────────────────────────────────────────────┘
 month_3: {
   title: "第三個月：實戰對話",
   subtitle: "加油站、收費站、租車",
