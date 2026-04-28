@@ -6,6 +6,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#1a1a2e">
   <title>自駕特訓班：4個月玩轉日本</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/icon-64x64.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="日本自駕旅行日語學習 — 道路標誌、導航、加油站對話">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&family=Klee+One:wght@400;600&family=Zen+Kurenaido&family=Yomogi&family=Hachi+Maru+Pop&family=Kaisei+HarunoUmi:wght@400;700&family=Yuji+Syuku&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -516,7 +522,10 @@ function showPopup(m){const d=document.createElement('div');d.className='ocr-toa
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-window.addEventListener('load',()=>{try{GEMINI_KEY=localStorage.getItem('jd-gemini-key')||'';tripDate=localStorage.getItem('jd-trip-date')||null;}catch(e){}updateCountdown();updateNoKeyBanner();renderMonthTabs();renderUnitCards();loadUnit();});
+window.addEventListener('load',()=>{try{GEMINI_KEY=localStorage.getItem('jd-gemini-key')||'';tripDate=localStorage.getItem('jd-trip-date')||null;}catch(e){}updateCountdown();updateNoKeyBanner();renderMonthTabs();renderUnitCards();loadUnit();
+  // Register PWA Service Worker
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').then(r=>console.log('SW registered:',r.scope)).catch(e=>console.log('SW failed:',e));}
+});
 </script>
 </body>
 </html>
