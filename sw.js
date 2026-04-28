@@ -4,8 +4,8 @@ const PRECACHE_URLS = [
   './index.html',
   './data.js',
   './manifest.json',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png'
+  './icon-192x192.png',
+  './icon-512x512.png'
 ];
 
 // Google Fonts CDN domains to cache dynamically
