@@ -190,6 +190,7 @@
   <h2>⚙️ 設定</h2>
   <div class="section"><label>🧠 Gemini API Key（手寫辨識 + AI 功能）</label><input type="password" id="gemini-key-input" placeholder="AIza..."><div class="hint-text">免費申請：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a></div></div>
   <div class="section"><label>🗓️ 出發日期</label><input type="date" id="trip-date-input"><div class="hint-text">設定你的日本自駕出發日，首頁會顯示倒數天數。</div></div>
+  <div class="section"><label>🧹 維護工具</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><button class="modal-btn cancel" onclick="clearCacheReload()" style="flex:1;text-align:center;">🔄 清除快取重載</button><button class="modal-btn cancel" onclick="resetProgress()" style="flex:1;text-align:center;">🗑️ 重設學習進度</button></div><div class="hint-text">清除快取：更新程式碼後使用。重設進度：從第一課重新開始。</div></div>
   <div class="modal-btns"><button class="modal-btn cancel" onclick="closeSettings()">取消</button><button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button></div>
 </div></div>
 
@@ -309,6 +310,8 @@ function speakZH(t){synth.cancel();return new Promise(res=>{const u=new SpeechSy
 // ══════════════════════════════════════════
 function openSettings(){document.getElementById('settings-modal').classList.add('open');document.getElementById('gemini-key-input').value=GEMINI_KEY;document.getElementById('trip-date-input').value=tripDate||'';}
 function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
+function clearCacheReload(){if(!confirm('確定清除快取並重新載入？'))return;caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c)))).then(()=>navigator.serviceWorker.getRegistrations()).then(r=>Promise.all(r.map(x=>x.unregister()))).then(()=>location.reload(true)).catch(()=>location.reload(true));}
+function resetProgress(){if(!confirm('確定重設所有學習進度？分數將歸零。'))return;localStorage.removeItem('jd-progress');currentMonth='month_1';currentUnitIdx=0;currentPhase=1;totalScore=0;renderMonthTabs();renderUnitCards();loadUnit();switchPhase(1);closeSettings();}
 function saveSettings(){GEMINI_KEY=document.getElementById('gemini-key-input').value.trim();localStorage.setItem('jd-gemini-key',GEMINI_KEY);const d=document.getElementById('trip-date-input').value;if(d){tripDate=d;localStorage.setItem('jd-trip-date',d);}closeSettings();updateCountdown();updateNoKeyBanner();}
 function updateCountdown(){const b=document.getElementById('countdown-badge');if(!tripDate){b.textContent='🗓️ 設定出發日';return;}const d=Math.ceil((new Date(tripDate)-new Date())/(1000*60*60*24));b.textContent=d>0?`🗓️ 出發倒數 ${d} 天`:d===0?'🎉 今天出發！':'✈️ 已在旅途中';}
 function updateNoKeyBanner(){document.getElementById('no-key-banner').classList.toggle('hidden',!!GEMINI_KEY);}
