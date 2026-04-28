@@ -271,51 +271,11 @@
   <div class="progress-label" id="score-label">0 分</div>
 </div>
 
+<script src="data.js"></script>
 <script>
 // ══════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════
-const CURRICULUM = {
-  month_1: {
-    title: "第一個月：生存地基", subtitle: "道路標誌與基礎生存",
-    units: [
-      { id:"sign_01", category:"month_1", topic:"必須絕對遵守的停止線",
-        fullSentence:"止まれ", translation:"停下來！", fullTts:"とまれ",
-        chunks:[{text:"止まれ",tts:"とまれ",type:"verb",highlights:[{target:"止まれ",cssClass:"color-verb-blue",note:"🛑 這是動詞的「命令形」，在號誌上代表「絕對要停下來」。"}]}],
-        roleplay:{instruction:"前方出現倒三角形、紅底白字的標誌，請對著駕駛大喊：「停下來！」",acceptKeywords:["止まれ","とまれ","トマレ"]},
-        kanjiTask:{target:"止まれ",hint:"止まれ",emoji:"🛑",title:"🛑 止まれ（停下來！）",story:"「止」的形狀就像腳印停在地上。在日本開車看到這個字，腳掌就要立刻踩煞車，完全靜止 3 秒鐘！"}
-      },
-      { id:"sign_02", category:"month_1", topic:"狹窄巷弄的保命符",
-        fullSentence:"ここは徐行してください", translation:"這裡請慢行。", fullTts:"ここはじょこうしてください",
-        chunks:[{text:"ここ",tts:"ここ",type:"noun",highlights:[{target:"ここ",cssClass:"color-noun-green",note:"📍 這裡 (Here)。"}]},{text:"は",tts:"わ",type:"particle",highlights:[{target:"は",cssClass:"color-particle-red",note:"🔴 助詞「は」（唸 wa），提示主題。"}]},{text:"徐行",tts:"じょこう",type:"noun",highlights:[{target:"徐行",cssClass:"color-noun-green",note:"🐢 徐行＝慢慢開，時速 10 公里以下。"}]},{text:"してください",tts:"してください",type:"verb",highlights:[{target:"してください",cssClass:"color-verb-blue",note:"🙏 請這麼做。萬用禮貌請求句型。"}]}],
-        roleplay:{instruction:"開進了沒有人行道的狹窄巷子，請提醒駕駛：「請慢慢開（徐行）」。",acceptKeywords:["徐行","じょこう","ジョコウ"]},
-        kanjiTask:{target:"徐行",hint:"徐行",emoji:"🚶",title:"🚶 徐行（從容慢慢來）",story:"左邊「彳」代表步伐，右邊「余」有從容的意思。腳步從容不迫，就是慢慢來。開車看到它，請鬆開油門！"}
-      },
-      { id:"sign_03", category:"month_1", topic:"避免逆向的關鍵",
-        fullSentence:"一方通行です", translation:"這裡是單行道。", fullTts:"いっぽうつうこうです",
-        chunks:[{text:"一方通行",tts:"いっぽうつうこう",type:"noun",highlights:[{target:"一方通行",cssClass:"color-noun-green",note:"➡ 只有一個方向能通行，也就是單行道。藍底白箭頭標誌。"}]},{text:"です",tts:"です",type:"verb",highlights:[{target:"です",cssClass:"color-verb-blue",note:"✨ 肯定結尾，相當於『是』。"}]}],
-        roleplay:{instruction:"導航顯示這條路只能單向行駛，請說出：「是單行道」。",acceptKeywords:["一方通行","いっぽうつうこう","通行"]},
-        kanjiTask:{target:"通行",hint:"通行",emoji:"🛣️",title:"🛣️ 通行（順暢走過去）",story:"「辶」代表在路上走動，右邊「甬」就像通道。讓車子順暢地通過，就是「通行」。"}
-      },
-      { id:"sign_04", category:"month_1", topic:"尋找停車位",
-        fullSentence:"駐車禁止ですよ", translation:"這裡是禁止停車的喔。", fullTts:"ちゅうしゃきんしですよ",
-        chunks:[{text:"駐車",tts:"ちゅうしゃ",type:"noun",highlights:[{target:"駐車",cssClass:"color-noun-green",note:"🅿️ 停放車輛的意思。"}]},{text:"禁止",tts:"きんし",type:"noun",highlights:[{target:"禁止",cssClass:"color-noun-green",note:"❌ 不能做的意思。藍底紅斜線標誌絕對不要停！"}]},{text:"です",tts:"です",type:"verb",highlights:[{target:"です",cssClass:"color-verb-blue",note:"✨ 肯定結尾『是』。"}]},{text:"よ",tts:"よ",type:"particle",highlights:[{target:"よ",cssClass:"color-particle-red",note:"🔴 句尾提醒語氣，像中文的『～喔』。"}]}],
-        roleplay:{instruction:"駕駛想在路邊暫停，但你看到紅色斜線標誌，請立刻提醒：「禁止停車！」",acceptKeywords:["駐車","禁止","ちゅうしゃきんし"]},
-        kanjiTask:{target:"駐車禁止",hint:"駐車禁止",emoji:"🅿️",title:"🅿️ 駐車禁止（禁止停車）",story:"「馬」＋「主」＝駐。古代讓馬停下來休息在主人的地方，現代的鐵馬（汽車）停下來就是「駐車」。加上「禁止」就是不能停！"}
-      },
-      { id:"sign_05", category:"month_1", topic:"高速公路收費站閘道",
-        fullSentence:"ETC専用レーンに入ります", translation:"要進入 ETC 專用車道囉。", fullTts:"イーティーシーせんようレーンにはいります",
-        chunks:[{text:"ETC専用",tts:"イーティーシーせんよう",type:"noun",highlights:[{target:"専用",cssClass:"color-noun-green",note:"🚗 紫色招牌的 ETC 專用道，有 ETC 卡就大膽開過去！"}]},{text:"レーン",tts:"レーン",type:"noun",highlights:[{target:"レーン",cssClass:"color-noun-green",note:"🛣️ Lane (車道)。"}]},{text:"に",tts:"に",type:"particle",highlights:[{target:"に",cssClass:"color-particle-red",note:"🔴 助詞「に」：表示動作目的地。"}]},{text:"入ります",tts:"はいります",type:"verb",highlights:[{target:"入ります",cssClass:"color-verb-blue",note:"🚪 進入的意思。"}]}],
-        roleplay:{instruction:"快到收費站了，確認車上有 ETC 卡，請宣告：「進入 ETC 專用道」。",acceptKeywords:["専用","せんよう","ETC"]},
-        kanjiTask:{target:"専用",hint:"専用",emoji:"🎯",title:"🎯 専用（全部集中在這裡）",story:"上方像紡織用的磚，把絲線集中繞在上面。把所有用途集中在一個地方，就是「專用」！"}
-      }
-    ]
-  },
-  month_2:{title:"第二個月：導航指引",subtitle:"聽懂導航、問路、方位",units:[]},
-  month_3:{title:"第三個月：實戰對話",subtitle:"加油站、收費站、租車",units:[]},
-  month_4:{title:"第四個月：突發應變",subtitle:"故障求助、餐廳、飯店",units:[]}
-};
-
 // ══════════════════════════════════════════
 // GLOBAL STATE
 // ══════════════════════════════════════════
