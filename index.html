@@ -223,7 +223,7 @@
 <div class="phase-nav">
   <button class="phase-btn active" onclick="switchPhase(1)">👀 拆解看聽</button>
   <button class="phase-btn" onclick="switchPhase(2)">🎤 情境開口</button>
-  <button class="phase-btn" onclick="switchPhase(3)">✏️ 詞語手寫</button>
+  <button class="phase-btn" onclick="switchPhase(3)">✏️ 整句手寫</button>
 </div>
 
 <div class="no-key-banner hidden" id="no-key-banner">🔑 尚未設定 Gemini API Key，手寫辨識功能無法使用。<a onclick="openSettings()">前往設定</a></div>
@@ -380,62 +380,52 @@ function startSpeechRecognition(){if(!recognition){document.getElementById('p2-r
 let _p3BoxSize=150;
 
 function buildPhase3(unit){
-  if(!unit?.kanjiTask)return;
-  const kt=unit.kanjiTask, chars=[...kt.target], n=chars.length;
-  document.getElementById('p3-emoji').textContent=kt.emoji;
-  document.getElementById('p3-title').textContent=kt.title;
-
-  // Font selector
-  const fs=document.getElementById('p3-font-selector');fs.innerHTML='';
-  Object.entries(HINT_FONTS).forEach(([k,f])=>{const b=document.createElement('button');b.className='p3-font-btn'+(k===currentHintFont?' active':'');b.textContent='✍️ '+f.label;b.onclick=()=>{currentHintFont=k;buildPhase3(unit);initCanvas();};fs.appendChild(b);});
-
-  // Audio buttons
+  if(!unit)return;
+  const sentence=unit.fullSentence, chars=[...sentence], n=chars.length;
+  // Header: Chinese prompt
+  document.getElementById('p3-emoji').textContent=unit.kanjiTask?.emoji||'✏️';
+  document.getElementById('p3-title').innerHTML='<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:4px;">請用日文寫出這句話：</div><div style="font-size:1.1rem;color:var(--gold);">🇹🇼 '+unit.translation+'</div>';
+  document.getElementById('p3-font-selector').innerHTML='';
+  document.querySelector('.p3-story-btn').textContent='💡 看提示';
+  // Audio
   const ab=document.getElementById('p3-audio-bar');ab.innerHTML='';
-  [{label:'🔊 聽整句',fn:()=>speakJP(unit.fullTts||unit.fullSentence,0.7)},{label:'🐢 慢速唸',fn:()=>speakJP(unit.fullTts||unit.fullSentence,0.4)},{label:'🇹🇼 中文翻譯',fn:()=>speakZH(unit.translation)}].forEach(x=>{const b=document.createElement('button');b.className='p3-audio-btn';b.textContent=x.label;b.onclick=()=>{b.classList.add('playing');x.fn().then(()=>b.classList.remove('playing'));};ab.appendChild(b);});
-
-  // Multi-canvas
+  [{label:'🔊 聽日文',fn:()=>speakJP(unit.fullTts||sentence,0.7)},{label:'🐢 慢速唸',fn:()=>speakJP(unit.fullTts||sentence,0.4)},{label:'🇹🇼 中文翻譯',fn:()=>speakZH(unit.translation)}].forEach(x=>{const b=document.createElement('button');b.className='p3-audio-btn';b.textContent=x.label;b.onclick=()=>{b.classList.add('playing');x.fn().then(()=>b.classList.remove('playing'));};ab.appendChild(b);});
+  // Canvas layout
   const ca=document.getElementById('p3-canvas-area');ca.innerHTML='';
-  const maxW=Math.min(window.innerWidth-40,560),gap=6;
-  let bs;if(n<=2)bs=Math.min(180,(maxW-gap)/2);else if(n<=3)bs=Math.min(150,(maxW-gap*2)/3);else bs=Math.min(120,(maxW-gap*(n-1))/n);
-  bs=Math.floor(bs);_p3BoxSize=bs;
-
-  const mc=document.createElement('div');mc.className='p3-multi-canvas';
+  const maxW=Math.min(window.innerWidth-32,560),gap=4;
+  let bpr,bs;
+  if(n<=5){bpr=n;bs=Math.min(100,Math.floor((maxW-gap*(n-1))/n));}
+  else if(n<=10){bpr=Math.min(n,Math.ceil(n/2)>5?5:Math.ceil(n/2));bs=Math.min(80,Math.floor((maxW-gap*(bpr-1))/bpr));}
+  else{bpr=Math.min(8,Math.ceil(Math.sqrt(n*1.5)));bs=Math.min(70,Math.floor((maxW-gap*(bpr-1))/bpr));}
+  bs=Math.max(45,bs);
+  window._p3BoxSize=bs;window._p3Chars=chars;
+  const mc=document.createElement('div');mc.style.cssText='display:flex;flex-wrap:wrap;gap:'+gap+'px;justify-content:center;max-width:'+maxW+'px;margin:0 auto;';
   chars.forEach((ch,i)=>{
-    const box=document.createElement('div');box.className='p3-char-box';box.id='p3-box-'+i;box.style.cssText='width:'+bs+'px;height:'+bs+'px;';
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','guide-svg');svg.setAttribute('viewBox','0 0 '+bs+' '+bs);
-    svg.innerHTML='<line x1="'+bs/2+'" y1="0" x2="'+bs/2+'" y2="'+bs+'" stroke="#ddd" stroke-width="0.5" stroke-dasharray="4,3"/><line x1="0" y1="'+bs/2+'" x2="'+bs+'" y2="'+bs/2+'" stroke="#ddd" stroke-width="0.5" stroke-dasharray="4,3"/>';
+    const box=document.createElement('div');box.className='p3-char-box';box.id='p3-box-'+i;box.style.cssText='width:'+bs+'px;height:'+bs+'px;position:relative;background:#fafafa;border-radius:8px;border:2px solid var(--border);overflow:hidden;cursor:crosshair;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.style.cssText='position:absolute;inset:0;z-index:0;pointer-events:none;width:100%;height:100%;';svg.setAttribute('viewBox','0 0 '+bs+' '+bs);
+    svg.innerHTML='<line x1="'+bs/2+'" y1="0" x2="'+bs/2+'" y2="'+bs+'" stroke="#eee" stroke-width="0.5" stroke-dasharray="3,2"/><line x1="0" y1="'+bs/2+'" x2="'+bs+'" y2="'+bs/2+'" stroke="#eee" stroke-width="0.5" stroke-dasharray="3,2"/>';
     box.appendChild(svg);
-    const hc=document.createElement('canvas');hc.className='hint-cv';hc.id='p3-hint-'+i;box.appendChild(hc);
-    const dc=document.createElement('canvas');dc.className='draw-cv';dc.id='p3-draw-'+i;box.appendChild(dc);
-    const lb=document.createElement('span');lb.className='char-label';lb.textContent=(i+1)+'/'+n;box.appendChild(lb);
+    const dc=document.createElement('canvas');dc.className='draw-cv';dc.id='p3-draw-'+i;dc.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;touch-action:none;';box.appendChild(dc);
+    const lb=document.createElement('span');lb.style.cssText='position:absolute;bottom:1px;right:3px;z-index:3;font-size:'+(bs<60?'0.4rem':'0.5rem')+';color:#ccc;pointer-events:none;font-weight:600;';lb.textContent=(i+1);box.appendChild(lb);
     mc.appendChild(box);
   });
   ca.appendChild(mc);
-  const ctrl=document.createElement('div');ctrl.className='p3-controls';
+  const ctrl=document.createElement('div');ctrl.className='p3-controls';ctrl.style.marginTop='8px';
   ctrl.innerHTML='<button class="p3-ctrl-btn clear" onclick="clearAllCanvases()">❌ 重寫</button><button class="p3-ctrl-btn submit" onclick="submitAllKanji()">⭕ 交卷</button>';
   ca.appendChild(ctrl);
 }
 
 async function initCanvas(){
-  const u=getCurrentUnit();if(!u?.kanjiTask)return;
-  const chars=[...u.kanjiTask.target],bs=_p3BoxSize,fi=HINT_FONTS[currentHintFont],fs=Math.floor(bs*0.72),fontSpec=fs+'px '+fi.css;
-  try{await document.fonts.load(fontSpec,u.kanjiTask.target);}catch(e){}
-  await document.fonts.ready;
-  const ok=document.fonts.check(fontSpec,u.kanjiTask.target);
-  const actualFont=ok?fontSpec:(fs+"px 'Noto Sans JP', sans-serif");
-  chars.forEach((ch,i)=>{
-    const hc=document.getElementById('p3-hint-'+i),dc=document.getElementById('p3-draw-'+i);if(!hc||!dc)return;
-    hc.width=bs;hc.height=bs;dc.width=bs;dc.height=bs;
-    const hctx=hc.getContext('2d');hctx.clearRect(0,0,bs,bs);hctx.font=actualFont;hctx.textAlign='center';hctx.textBaseline='middle';hctx.fillStyle='#ccc';hctx.fillText(ch,bs/2,bs/2);
-    setupSingleCanvas(dc,bs);
-  });
+  const chars=window._p3Chars;if(!chars)return;
+  const bs=window._p3BoxSize||60;
+  chars.forEach((ch,i)=>{const dc=document.getElementById('p3-draw-'+i);if(!dc)return;dc.width=bs;dc.height=bs;setupSingleCanvas(dc,bs);});
   hasWritten=false;
 }
 
 function setupSingleCanvas(cv,size){
   const clone=cv.cloneNode(true);cv.parentNode.replaceChild(clone,cv);
   const fc=document.getElementById(cv.id);fc.width=size;fc.height=size;
-  const ctx=fc.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(3,size*0.022);ctx.strokeStyle='#333';
+  const ctx=fc.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(2,size*0.025);ctx.strokeStyle='#333';
   let d=false;
   function gp(e){const r=fc.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:(cx-r.left)*(fc.width/r.width),y:(cy-r.top)*(fc.height/r.height)};}
   fc.addEventListener('mousedown',e=>{e.preventDefault();d=true;hasWritten=true;const p=gp(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
@@ -446,25 +436,26 @@ function setupSingleCanvas(cv,size){
   fc.addEventListener('touchend',()=>d=false);
 }
 
-function clearAllCanvases(){const u=getCurrentUnit();if(!u?.kanjiTask)return;[...u.kanjiTask.target].forEach((c,i)=>{const cv=document.getElementById('p3-draw-'+i);if(cv)cv.getContext('2d').clearRect(0,0,cv.width,cv.height);const bx=document.getElementById('p3-box-'+i);if(bx)bx.classList.remove('done','checking');});hasWritten=false;}
+function clearAllCanvases(){const chars=window._p3Chars;if(!chars)return;chars.forEach((c,i)=>{const cv=document.getElementById('p3-draw-'+i);if(cv)cv.getContext('2d').clearRect(0,0,cv.width,cv.height);const bx=document.getElementById('p3-box-'+i);if(bx){bx.classList.remove('done','checking');bx.style.borderColor='';}});hasWritten=false;}
 
 async function submitAllKanji(){
   if(!hasWritten){showPopup('請先寫字喔！✍️');return;}
-  const u=getCurrentUnit();if(!u?.kanjiTask)return;
-  const chars=[...u.kanjiTask.target];let ts=0;
+  const chars=window._p3Chars,unit=getCurrentUnit();if(!chars||!unit)return;
+  let ok=0;
   for(let i=0;i<chars.length;i++){
-    const bx=document.getElementById('p3-box-'+i),cv=document.getElementById('p3-draw-'+i);if(!cv)continue;
+    const bx=document.getElementById('p3-box-'+i),cv=document.getElementById('p3-draw-'+i);if(!cv||!bx)continue;
     bx.classList.add('checking');
     if(GEMINI_KEY){
       try{const img=cv.toDataURL('image/png').split(',')[1];
         const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'image/png',data:img}},{text:'你是手寫日文辨識器。目標字：'+chars[i]+'\n只回傳 JSON：{"char":"你看到的字"}'}]}]})});
         const data=await res.json();const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';const p=JSON.parse(txt.replace(/```json|```/g,'').trim());const seen=p.char||'？';
-        bx.classList.remove('checking');if(seen===chars[i]){bx.classList.add('done');ts+=12;}else{showOcrToast(seen,chars[i]);ts+=3;}
-      }catch(e){bx.classList.remove('checking');ts+=6;}
-    }else{bx.classList.remove('checking');bx.classList.add('done');ts+=6;}
+        bx.classList.remove('checking');if(seen===chars[i]){bx.classList.add('done');bx.style.borderColor='var(--success)';ok++;}else{bx.style.borderColor='var(--particle-red)';showOcrToast(seen,chars[i]);}
+      }catch(e){bx.classList.remove('checking');ok+=0.5;}
+    }else{bx.classList.remove('checking');bx.classList.add('done');bx.style.borderColor='var(--success)';ok++;}
   }
-  const avg=Math.round(ts/chars.length),desc=avg>=12?'完美辨識！':avg>=8?'不錯！':'繼續練習',cls=avg>=12?'perfect':avg>=8?'good':'ok';
-  totalScore+=avg;showScorePopup(avg,desc+' ('+u.kanjiTask.target+')',cls);updateProgress();
+  const pct=ok/chars.length,score=Math.round(pct*12);
+  const desc=pct>=0.9?'完美！':pct>=0.6?'不錯！':'繼續加油',cls=pct>=0.9?'perfect':pct>=0.6?'good':'ok';
+  totalScore+=score;showScorePopup(score,desc+' ('+ok+'/'+chars.length+'字)',cls);updateProgress();
   setTimeout(()=>{document.querySelector('.score-popup')?.remove();const units=getCurrentUnits();if(currentUnitIdx<units.length-1){currentUnitIdx++;renderUnitCards();loadUnit();switchPhase(1);}else{clearAllCanvases();showPopup('🎉 全部完成！');}},2500);
 }
 
