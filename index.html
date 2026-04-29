@@ -188,7 +188,7 @@
 <!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settings-modal"><div class="modal">
   <h2>⚙️ 設定</h2>
-  <div class="section"><label>🧠 Gemini API Key（手寫辨識 + AI 功能）</label><input type="password" id="gemini-key-input" placeholder="AIza..."><div class="hint-text">免費申請：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a></div></div>
+  <div class="section"><label>🧠 Gemini API Key（手寫辨識 + AI 功能）</label><input type="password" id="gemini-key-input" placeholder="AIza..."><div class="hint-text">免費申請：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a></div><div class="hint-text" style="margin-top:6px;">🤖 目前模型：<span id="jd-current-model" style="color:var(--accent);font-family:monospace;">—</span> <button onclick="localStorage.removeItem('jd-gemini-model');GEMINI_MODEL=GEMINI_MODELS[0];document.getElementById('jd-current-model').textContent=GEMINI_MODEL;" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);border-radius:6px;font-size:0.6rem;cursor:pointer;font-family:inherit;">重設為 2.5</button></div></div>
   <div class="section"><label>🗓️ 出發日期</label><input type="date" id="trip-date-input"><div class="hint-text">設定你的日本自駕出發日，首頁會顯示倒數天數。</div></div>
   <div class="section"><label>🧹 維護工具</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><button class="modal-btn cancel" onclick="clearCacheReload()" style="flex:1;text-align:center;">🔄 清除快取重載</button><button class="modal-btn cancel" onclick="resetProgress()" style="flex:1;text-align:center;">🗑️ 重設學習進度</button></div><div class="hint-text">清除快取：更新程式碼後使用。重設進度：從第一課重新開始。</div></div>
   <div class="modal-btns"><button class="modal-btn cancel" onclick="closeSettings()">取消</button><button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button></div>
@@ -283,6 +283,46 @@
 let GEMINI_KEY='', tripDate=null, currentMonth='month_1', currentUnitIdx=0, currentPhase=1, totalScore=0, hasWritten=false;
 const synth=window.speechSynthesis; let jpVoice=null, zhVoice=null;
 
+// ═══ Gemini Model Fallback + 429 Retry ═══
+const GEMINI_MODELS=['gemini-2.5-flash','gemini-flash-latest','gemini-2.0-flash'];
+let GEMINI_MODEL=localStorage.getItem('jd-gemini-model')||GEMINI_MODELS[0];
+async function callGemini(body,opts){
+  if(!GEMINI_KEY)throw new Error('NO_KEY');
+  opts=opts||{};const maxRetry=opts.maxRetry??2;let lastErr=null;
+  for(let mi=0;mi<GEMINI_MODELS.length;mi++){
+    const model=mi===0?GEMINI_MODEL:GEMINI_MODELS[mi];
+    if(mi>0&&model===GEMINI_MODEL)continue;
+    for(let attempt=0;attempt<=maxRetry;attempt++){
+      try{
+        const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+GEMINI_KEY,{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(res.ok){
+          if(model!==GEMINI_MODEL){GEMINI_MODEL=model;try{localStorage.setItem('jd-gemini-model',model);}catch(e){}showToast('🔄 已切換到 '+model);}
+          return await res.json();
+        }
+        const errData=await res.json().catch(()=>({error:{code:res.status}}));
+        const code=errData?.error?.code||res.status;const status=errData?.error?.status||'';
+        if(code===429&&attempt<maxRetry){
+          let waitMs=Math.min(8000,2000*Math.pow(2,attempt));
+          const ri=errData?.error?.details?.find(d=>d['@type']?.includes('RetryInfo'));
+          if(ri?.retryDelay){const m=ri.retryDelay.match(/(\d+(?:\.\d+)?)s/);if(m&&parseFloat(m[1])<10)waitMs=Math.ceil(parseFloat(m[1])*1000)+200;}
+          showToast('⏳ 配額限制，'+Math.ceil(waitMs/1000)+'秒後重試');
+          await new Promise(r=>setTimeout(r,waitMs));continue;
+        }
+        if(code===404||status==='NOT_FOUND'||status==='UNAVAILABLE'){lastErr=new Error('MODEL_'+code);break;}
+        if(code===429){lastErr=new Error('QUOTA');break;}
+        if(code===400&&errData?.error?.message?.includes('API key'))throw new Error('BAD_KEY');
+        throw new Error('API_'+code);
+      }catch(e){
+        if(e.message==='BAD_KEY'||e.message==='QUOTA')throw e;
+        if(attempt>=maxRetry){lastErr=e;break;}
+        await new Promise(r=>setTimeout(r,1500));
+      }
+    }
+  }
+  throw lastErr||new Error('ALL_MODELS_FAILED');
+}
+
 const HINT_FONTS = {
   klee:{name:'Klee One',label:'教科書',css:"'Klee One', cursive"},
   yuji:{name:'Yuji Syuku',label:'書道',css:"'Yuji Syuku', serif"},
@@ -308,7 +348,7 @@ function speakZH(t){synth.cancel();return new Promise(res=>{const u=new SpeechSy
 // ══════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════
-function openSettings(){document.getElementById('settings-modal').classList.add('open');document.getElementById('gemini-key-input').value=GEMINI_KEY;document.getElementById('trip-date-input').value=tripDate||'';}
+function openSettings(){document.getElementById('settings-modal').classList.add('open');document.getElementById('gemini-key-input').value=GEMINI_KEY;document.getElementById('trip-date-input').value=tripDate||'';document.getElementById('jd-current-model').textContent=GEMINI_MODEL;}
 function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
 function clearCacheReload(){if(!confirm('確定清除快取並重新載入？'))return;caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c)))).then(()=>navigator.serviceWorker.getRegistrations()).then(r=>Promise.all(r.map(x=>x.unregister()))).then(()=>location.reload(true)).catch(()=>location.reload(true));}
 function resetProgress(){if(!confirm('確定重設所有學習進度？分數將歸零。'))return;localStorage.removeItem('jd-progress');currentMonth='month_1';currentUnitIdx=0;currentPhase=1;totalScore=0;renderMonthTabs();renderUnitCards();loadUnit();switchPhase(1);closeSettings();}
@@ -430,9 +470,9 @@ function clearAllCanvases(){const chars=window._p3Chars;if(!chars)return;chars.f
 
 async function submitAllKanji(){
   if(!hasWritten){showPopup('請先寫字喔！✍️');return;}
-  const chars=window._p3Chars,unit=getCurrentUnit();if(!chars||!unit)return;let ok=0;
+  const chars=window._p3Chars,unit=getCurrentUnit();if(!chars||!unit)return;let ok=0,quotaHit=false;
   for(let i=0;i<chars.length;i++){const bx=document.getElementById('p3-box-'+i),cv=document.getElementById('p3-draw-'+i);if(!cv||!bx)continue;bx.style.boxShadow='0 0 0 2px var(--warning)';
-    if(GEMINI_KEY){try{const img=cv.toDataURL('image/png').split(',')[1];const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inlineData:{mimeType:'image/png',data:img}},{text:'你是手寫日文辨識器。目標字：'+chars[i]+'\n只回傳JSON：{"char":"你看到的字"}'}]}]})});const data=await res.json();const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';const p=JSON.parse(txt.replace(/```json|```/g,'').trim());const seen=p.char||'？';if(seen===chars[i]){bx.style.boxShadow='0 0 0 3px var(--success),0 2px 8px rgba(0,230,118,0.4)';ok++;}else{bx.style.boxShadow='0 0 0 3px var(--particle-red)';showOcrToast(seen,chars[i]);}}catch(e){ok+=0.5;}}
+    if(GEMINI_KEY&&!quotaHit){try{const img=cv.toDataURL('image/png').split(',')[1];const data=await callGemini({contents:[{parts:[{inlineData:{mimeType:'image/png',data:img}},{text:'你是手寫日文辨識器。目標字：'+chars[i]+'\n只回傳JSON：{"char":"你看到的字"}'}]}]},{maxRetry:1});const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';const p=JSON.parse(txt.replace(/```json|```/g,'').trim());const seen=p.char||'？';if(seen===chars[i]){bx.style.boxShadow='0 0 0 3px var(--success),0 2px 8px rgba(0,230,118,0.4)';ok++;}else{bx.style.boxShadow='0 0 0 3px var(--particle-red)';showOcrToast(seen,chars[i]);}}catch(e){if(e.message==='QUOTA'||e.message==='BAD_KEY'){quotaHit=true;showToast(e.message==='QUOTA'?'⏳ 配額用完，剩餘字以基本分計算':'❌ Key 無效');}ok+=0.5;}}
     else{bx.style.boxShadow='0 0 0 3px var(--success)';ok++;}}
   const pct=ok/chars.length,score=Math.round(pct*12);
   const desc=pct>=0.9?'完美！':pct>=0.6?'不錯！':'繼續加油',cls=pct>=0.9?'perfect':pct>=0.6?'good':'ok';
