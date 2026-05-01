@@ -391,6 +391,393 @@ async function uploadMonthJSON() {
 </script>
 <script>
 // ══════════════════════════════════════════
+// 全部月份課程定義（唯一真相來源）
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// 全部月份課程定義（唯一真相來源）
+// ══════════════════════════════════════════
+// ✅ 所有月份都寫在這裡。App 啟動時的邏輯：
+//   1. 先從 Firebase 載入已生成的課程（秒速）
+//   2. 比對 PENDING_MONTHS — Firebase 還沒有的月份
+//   3. 缺失的 → 背景用 Gemini 逐 theme 生成 → 存入 Firebase
+//   4. Firebase 連不上 → fallback 到 data.js（離線模式）
+//
+// ✏️ 要新增第五個月？照格式在末尾加一筆，部署後 App 自動生成。
+// ✏️ 第一二月已在 Firebase 裡（不會重複生成，只是留著當保險）。
+const PENDING_MONTHS = [
+  // ═══════════════════════════════════════
+  // 第一個月：生存地基（35 課）← 已在 Firebase
+  // ═══════════════════════════════════════
+  {
+    month_id: "month_1",
+    title: "第一個月：生存地基",
+    themes: [
+      {
+        theme: "signs",
+        topic_list: [
+          "必須絕對遵守的停止線",
+          "狹窄巷弄的保命符",
+          "避免逆向的關鍵",
+          "尋找停車位",
+          "高速公路收費站閘道"
+        ]
+      },
+      {
+        theme: "parking",
+        topic_list: [
+          "確認收費屬性",
+          "紅色燈號的殘酷現實",
+          "藍色燈號的希望之光",
+          "找繳費機",
+          "當日最高收費",
+          "鈔票的限制",
+          "按鈕取卡",
+          "包月車位的地雷",
+          "停車格線內",
+          "營業時間確認"
+        ]
+      },
+      {
+        theme: "railway",
+        topic_list: [
+          "平交道安全",
+          "休息站補給",
+          "ETC卡沒插好",
+          "一般車道",
+          "接近收費站",
+          "下交流道",
+          "匯流注意",
+          "加油站位置",
+          "前方塞車",
+          "保持車距"
+        ]
+      },
+      {
+        theme: "rules",
+        topic_list: [
+          "速度限制",
+          "禁止超車",
+          "行人最大",
+          "指定方向限制",
+          "右轉專用道",
+          "當心動物",
+          "路面結冰",
+          "急轉彎警告",
+          "暫停確認安全",
+          "減速行駛"
+        ]
+      }
+    ]
+  },
+  // ═══════════════════════════════════════
+  // 第二個月：導航指引（30 課）← 已在 Firebase
+  // ═══════════════════════════════════════
+  {
+    month_id: "month_2",
+    title: "第二個月：導航指引",
+    themes: [
+      {
+        theme: "navigation",
+        topic_list: [
+          "導航起手式：準備右轉",
+          "距離預告：準備左轉",
+          "複雜路口：斜向行駛",
+          "旅途終點：抵達目的地",
+          "開錯路了：偏離路線",
+          "重新計算：尋找新路線",
+          "導航提醒：道なり",
+          "終點側位：目的地在左側",
+          "注意標誌：實際交通規制",
+          "導航結束"
+        ]
+      },
+      {
+        theme: "flow",
+        topic_list: [
+          "看懂路標：十字路口",
+          "數紅綠燈",
+          "走到底：T字路",
+          "路口順序：第三個角",
+          "穿越標誌：高架下",
+          "重要動線：跨越陸橋",
+          "出隧道即轉",
+          "動線變換：進入側道",
+          "鐵道動線：過平交道",
+          "匯入幹道：合流"
+        ]
+      },
+      {
+        theme: "help",
+        topic_list: [
+          "尋找救星：加油站",
+          "承認迷路",
+          "返回原本的路",
+          "確認目的地方向",
+          "詢問停車場",
+          "請求指圖",
+          "發現逆向：危險警告",
+          "開過頭了",
+          "確認可否迴轉",
+          "找廁所：小孩緊急需求"
+        ]
+      }
+    ]
+  },
+  // ═══════════════════════════════════════
+  // 第三個月：實戰對話（28 課）← 待生成
+  // ═══════════════════════════════════════
+  {
+    month_id: "month_3",
+    title: "第三個月：實戰對話",
+    themes: [
+      {
+        theme: "restaurant",
+        topic_list: [
+          "進入餐廳時的招呼",
+          "告知用餐人數",
+          "看菜單點餐",
+          "詢問店員推薦",
+          "確認過敏食材",
+          "加點飲料",
+          "呼叫店員",
+          "結帳買單"
+        ]
+      },
+      {
+        theme: "hotel",
+        topic_list: [
+          "辦理入住",
+          "告知預約姓名",
+          "詢問 Wi-Fi 密碼",
+          "請求額外枕頭毛巾",
+          "詢問早餐時間地點",
+          "退房手續",
+          "寄放行李到傍晚"
+        ]
+      },
+      {
+        theme: "konbini",
+        topic_list: [
+          "詢問洗手間位置",
+          "請店員加熱便當",
+          "買咖啡操作機器",
+          "詢問有沒有某商品",
+          "拒絕塑膠袋",
+          "使用影印機求助"
+        ]
+      },
+      {
+        theme: "shopping",
+        topic_list: [
+          "詢問價格",
+          "試穿衣服",
+          "詢問有沒有其他顏色",
+          "免稅手續",
+          "刷卡還是現金",
+          "索取收據",
+          "詢問退貨規定"
+        ]
+      }
+    ]
+  },
+  // ═══════════════════════════════════════
+  // 第四個月：突發應變（23 課）← 待生成
+  // ═══════════════════════════════════════
+  {
+    month_id: "month_4",
+    title: "第四個月：突發應變",
+    themes: [
+      {
+        theme: "accident",
+        topic_list: [
+          "發生車禍報警",
+          "向警察說明狀況",
+          "交換保險資訊",
+          "拍照存證",
+          "聯絡租車公司",
+          "等待道路救援"
+        ]
+      },
+      {
+        theme: "hospital",
+        topic_list: [
+          "描述受傷部位",
+          "說明症狀",
+          "詢問是否需要住院",
+          "請求中文翻譯服務",
+          "詢問醫療費用",
+          "拿藥注意事項"
+        ]
+      },
+      {
+        theme: "trouble",
+        topic_list: [
+          "車子拋錨求助",
+          "鑰匙鎖在車內",
+          "迷路問路",
+          "手機沒電借充電",
+          "遺失護照",
+          "行李被偷報案"
+        ]
+      },
+      {
+        theme: "weather",
+        topic_list: [
+          "颱風天確認道路狀況",
+          "大雪封路替代路線",
+          "暴雨中找避難所",
+          "確認加油站營業時間",
+          "詢問天氣預報"
+        ]
+      }
+    ]
+  }
+  // ═══════════════════════════════════════
+  // ▼ 要加第五個月？在這裡加 ▼
+  // ═══════════════════════════════════════
+  // ,{
+  //   month_id: "month_5",
+  //   title: "第五個月：深度體驗",
+  //   themes: [
+  //     { theme: "onsen", topic_list: ["詢問入浴方式", "租借毛巾", "確認混浴規定"] },
+  //     { theme: "shrine", topic_list: ["參拜禮儀", "抽御神籤", "購買御守"] }
+  //   ]
+  // }
+];
+
+// ══════════════════════════════════════════
+// 背景生成引擎
+// ══════════════════════════════════════════
+const _GEN_PROMPT = `你是日本語教學專家，專為台灣人設計「日本自駕旅遊」情境的日語課程。
+請根據以下主題，為每個 topic 生成一個完整的 unit。
+輸出：嚴格的 JSON 陣列，不要輸出 markdown。
+
+每個 unit 結構：
+{"id":"theme_序號","category":"MONTH_ID","theme":"場景名","topic":"課題名(繁體中文,8字內,有趣的標題)","fullSentence":"完整日文例句","translation":"繁體中文翻譯","fullTts":"完整平假名發音","chunks":[每個有意義的詞各一個 chunk],"roleplay":{"instruction":"情境描述(繁體中文,30字內)","acceptKeywords":["回答關鍵字(含漢字和假名版)"]},"kanjiTask":{"target":"練習漢字","hint":"漢字","emoji":"emoji","title":"emoji 漢字（意思）","story":"漢字拆解故事,繁體中文,50字內,像跟小朋友說話"}}
+
+chunk 結構：
+{"text":"日文","tts":"平假名","type":"noun|verb|particle|adjective|adverb|greeting|question|counter|honorific|copula","highlights":[{"target":"要標色的文字","cssClass":"顏色class","note":"emoji 說明(繁體中文,20字內)"}]}
+
+cssClass 只能用：color-noun-green(名詞), color-verb-blue(動詞), color-particle-red(助詞/敬語), color-kanji-gold(漢字重點), color-adj-purple(形容詞/副詞)
+
+規則：
+- 例句必須是旅遊時真的會用到的
+- 每個 chunk 的 highlights 必須有 note（含 emoji 開頭）
+- roleplay acceptKeywords 要含漢字和假名兩種版本
+- topic 標題要有趣、吸引小朋友
+- kanjiTask story 用拆字法，有畫面感`;
+
+let _genRunning = false;
+
+async function checkAndGeneratePending() {
+  if (!GEMINI_KEY || !_fbReady || _genRunning) return;
+  
+  for (const pm of PENDING_MONTHS) {
+    // 檢查 Firebase 是否已有此月份
+    try {
+      const doc = await _fb.collection('nihongo_curriculum').doc(pm.month_id).get();
+      if (doc.exists && doc.data().units?.length > 0) {
+        // 已有課程，跳過
+        if (!CURRICULUM[pm.month_id] || !CURRICULUM[pm.month_id].units?.length) {
+          // 但本地沒有 → 載入
+          CURRICULUM[pm.month_id] = { title: doc.data().title || pm.title, units: doc.data().units };
+          renderMonthTabs();
+        }
+        continue;
+      }
+    } catch(e) {}
+    
+    // 需要生成
+    console.log('🧠 開始生成:', pm.title);
+    _genRunning = true;
+    await generateMonthInBackground(pm);
+    _genRunning = false;
+  }
+}
+
+async function generateMonthInBackground(monthInput) {
+  const allUnits = [];
+  const totalTopics = monthInput.themes.reduce((n, t) => n + t.topic_list.length, 0);
+  let done = 0;
+  
+  // 先在 CURRICULUM 註冊空月份（讓 tab 顯示「生成中」）
+  if (!CURRICULUM[monthInput.month_id]) {
+    CURRICULUM[monthInput.month_id] = { title: monthInput.title, units: [] };
+  }
+  CURRICULUM[monthInput.month_id].title = monthInput.title + '（生成中…）';
+  renderMonthTabs();
+  
+  for (const theme of monthInput.themes) {
+    console.log('🧠 生成 theme:', theme.theme, '(' + theme.topic_list.length + '課)');
+    
+    try {
+      const prompt = _GEN_PROMPT.replace('MONTH_ID', monthInput.month_id);
+      const userMsg = '場景：' + theme.theme + '\n主題列表：\n' + theme.topic_list.map((t, i) => (i + 1) + '. ' + t).join('\n');
+      
+      const data = await callGemini({
+        contents: [{ parts: [{ text: userMsg }] }],
+        systemInstruction: { parts: [{ text: prompt }] },
+        generationConfig: { responseMimeType: 'application/json' }
+      }, { maxRetry: 2 });
+      
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        let parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+        if (!Array.isArray(parsed)) parsed = [parsed];
+        allUnits.push(...parsed);
+        done += theme.topic_list.length;
+        console.log('✅', theme.theme, ':', parsed.length, '課完成 (' + done + '/' + totalTopics + ')');
+        
+        // 即時更新本地
+        CURRICULUM[monthInput.month_id].units = allUnits;
+        CURRICULUM[monthInput.month_id].title = monthInput.title + '（' + done + '/' + totalTopics + '）';
+        renderMonthTabs();
+      }
+    } catch(e) {
+      console.warn('❌', theme.theme, '生成失敗:', e.message);
+      // 等 10 秒後重試
+      await new Promise(r => setTimeout(r, 10000));
+      // 重試一次
+      try {
+        const prompt = _GEN_PROMPT.replace('MONTH_ID', monthInput.month_id);
+        const userMsg = '場景：' + theme.theme + '\n主題：\n' + theme.topic_list.map((t, i) => (i + 1) + '. ' + t).join('\n');
+        const data = await callGemini({
+          contents: [{ parts: [{ text: userMsg }] }],
+          systemInstruction: { parts: [{ text: prompt }] },
+          generationConfig: { responseMimeType: 'application/json' }
+        }, { maxRetry: 1 });
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          let parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+          if (!Array.isArray(parsed)) parsed = [parsed];
+          allUnits.push(...parsed);
+          done += theme.topic_list.length;
+          console.log('✅ 重試成功:', theme.theme, parsed.length, '課');
+          CURRICULUM[monthInput.month_id].units = allUnits;
+          renderMonthTabs();
+        }
+      } catch(e2) { console.warn('❌ 重試也失敗:', e2.message); }
+    }
+    
+    // Rate limit: theme 之間等 3 秒
+    await new Promise(r => setTimeout(r, 3000));
+  }
+  
+  // 完成！存入 Firebase
+  if (allUnits.length > 0) {
+    CURRICULUM[monthInput.month_id] = { title: monthInput.title, units: allUnits };
+    renderMonthTabs();
+    
+    try {
+      await saveMonthToFirebase(monthInput.month_id, { title: monthInput.title, units: allUnits });
+      console.log('🔥 已存入 Firebase:', monthInput.month_id, allUnits.length, '課');
+    } catch(e) {
+      console.warn('Firebase 存入失敗:', e.message);
+    }
+  }
+}
+
+// ══════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
@@ -631,12 +1018,21 @@ async function syncExistingToFirebase() {
 }
 
 window.addEventListener('load', async ()=>{try{GEMINI_KEY=localStorage.getItem('jd-gemini-key')||'';tripDate=localStorage.getItem('jd-trip-date')||null;}catch(e){}
+  // 從 PENDING_MONTHS 註冊所有月份到 CURRICULUM（確保 tab 顯示）
+  PENDING_MONTHS.forEach(pm => {
+    if (!CURRICULUM[pm.month_id]) {
+      CURRICULUM[pm.month_id] = { title: pm.title, units: [] };
+    }
+  });
   // Restore saved progress
   const resumed=loadProgress();
   updateCountdown();updateNoKeyBanner();renderMonthTabs();renderUnitCards();loadUnit();
   if(resumed)switchPhase(currentPhase);
   // 從 Firebase 載入雲端月份（背景非同步）
-  loadCloudMonths();
+  loadCloudMonths().then(() => {
+    // 雲端月份載入完成後，檢查有沒有需要生成的月份
+    setTimeout(() => checkAndGeneratePending(), 2000);
+  });
   // Register PWA Service Worker
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').then(r=>console.log('SW registered:',r.scope)).catch(e=>console.log('SW failed:',e));}
 });
