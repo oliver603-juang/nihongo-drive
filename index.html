@@ -8,6 +8,8 @@
   <title>自駕特訓班：4個月玩轉日本</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-180x180.png">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <link rel="icon" type="image/png" sizes="64x64" href="icon-64x64.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -191,6 +193,7 @@
   <div class="section"><label>🧠 Gemini API Key（手寫辨識 + AI 功能）</label><input type="password" id="gemini-key-input" placeholder="AIza..."><div class="hint-text">免費申請：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a></div><div class="hint-text" style="margin-top:6px;">🤖 目前模型：<span id="jd-current-model" style="color:var(--accent);font-family:monospace;">—</span> <button onclick="localStorage.removeItem('jd-gemini-model');GEMINI_MODEL=GEMINI_MODELS[0];document.getElementById('jd-current-model').textContent=GEMINI_MODEL;" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);border-radius:6px;font-size:0.6rem;cursor:pointer;font-family:inherit;">重設為 2.5</button></div></div>
   <div class="section"><label>🗓️ 出發日期</label><input type="date" id="trip-date-input"><div class="hint-text">設定你的日本自駕出發日，首頁會顯示倒數天數。</div></div>
   <div class="section"><label>🧹 維護工具</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><button class="modal-btn cancel" onclick="clearCacheReload()" style="flex:1;text-align:center;">🔄 清除快取重載</button><button class="modal-btn cancel" onclick="resetProgress()" style="flex:1;text-align:center;">🗑️ 重設學習進度</button></div><div class="hint-text">清除快取：更新程式碼後使用。重設進度：從第一課重新開始。</div></div>
+  <div class="section"><label>☁️ 雲端課程管理</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><button class="modal-btn cancel" onclick="uploadMonthJSON()" style="flex:1;text-align:center;">📤 上傳月份 JSON</button><button class="modal-btn cancel" onclick="syncExistingToFirebase()" style="flex:1;text-align:center;">🔥 同步現有月份到雲端</button></div><div class="hint-text">上傳：用 Gemini 生成的月份 JSON。同步：把 data.js 的月份備份到 Firebase。</div></div>
   <div class="modal-btns"><button class="modal-btn cancel" onclick="closeSettings()">取消</button><button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button></div>
 </div></div>
 
@@ -273,6 +276,119 @@
 </div>
 
 <script src="data.js"></script>
+<script>
+// ══════════════════════════════════════════
+// FIREBASE — 雲端月份課程載入
+// ══════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDCsiiQ6xn2NyHBG6z8rSROBE7BqOppF0E",
+  authDomain: "phonics-app-28eac.firebaseapp.com",
+  projectId: "phonics-app-28eac",
+  storageBucket: "phonics-app-28eac.firebasestorage.app",
+  messagingSenderId: "865864812657",
+  appId: "1:865864812657:web:be76767ef9e61506ff73d0"
+};
+let _fb = null, _fbReady = false;
+function initFirebase() {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _fb = firebase.firestore();
+    _fbReady = true;
+    console.log('🔥 Firebase connected');
+  } catch(e) { console.warn('Firebase init failed:', e.message); }
+}
+initFirebase();
+
+// 從 Firebase 載入月份（lazy loading）
+async function loadMonthFromFirebase(monthId) {
+  if (!_fbReady || !_fb) return null;
+  try {
+    const doc = await _fb.collection('nihongo_curriculum').doc(monthId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      const monthData = data.units ? data : JSON.parse(data.data || '{}');
+      console.log('🔥 Loaded', monthId, ':', monthData.units?.length, 'units');
+      return monthData;
+    }
+  } catch(e) { console.warn('Firebase load month failed:', monthId, e.message); }
+  return null;
+}
+
+// 存月份到 Firebase（管理員用）
+async function saveMonthToFirebase(monthId, monthData) {
+  if (!_fbReady || !_fb) { alert('Firebase 未連線'); return false; }
+  try {
+    await _fb.collection('nihongo_curriculum').doc(monthId).set({
+      title: monthData.title,
+      units: monthData.units,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log('🔥 Saved', monthId, ':', monthData.units?.length, 'units');
+    return true;
+  } catch(e) { alert('儲存失敗: ' + e.message); return false; }
+}
+
+// 在 App 啟動時，嘗試從 Firebase 載入空的月份
+async function loadCloudMonths() {
+  if (!_fbReady) return;
+  const emptyMonths = Object.entries(CURRICULUM)
+    .filter(([k, m]) => !m.units || m.units.length === 0)
+    .map(([k]) => k);
+
+  // 也嘗試發現 Firebase 上有但 data.js 沒有的月份
+  try {
+    const snap = await _fb.collection('nihongo_curriculum').get();
+    snap.forEach(doc => {
+      const id = doc.id;
+      if (!CURRICULUM[id]) {
+        // 新月份！加入 CURRICULUM
+        const data = doc.data();
+        CURRICULUM[id] = { title: data.title || id, units: data.units || [] };
+        console.log('🔥 發現新月份:', id, data.title);
+      } else if (emptyMonths.includes(id)) {
+        // 現有的空月份，填入雲端資料
+        const data = doc.data();
+        if (data.units?.length) {
+          CURRICULUM[id].units = data.units;
+          if (data.title) CURRICULUM[id].title = data.title;
+          console.log('🔥 填入月份:', id, data.units.length, 'units');
+        }
+      }
+    });
+    // 重新渲染月份 tab
+    renderMonthTabs();
+  } catch(e) { console.warn('Cloud months scan failed:', e.message); }
+}
+
+// 上傳月份 JSON（從設定頁使用）
+async function uploadMonthJSON() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.month_id || !data.units?.length) {
+        alert('JSON 格式錯誤：需要 month_id 和 units 陣列');
+        return;
+      }
+      const monthId = data.month_id;
+      // 存到 Firebase
+      const ok = await saveMonthToFirebase(monthId, data);
+      if (ok) {
+        // 更新本地 CURRICULUM
+        CURRICULUM[monthId] = { title: data.title || monthId, units: data.units };
+        renderMonthTabs();
+        alert(`✅ 已上傳 ${data.title}（${data.units.length} 課）`);
+      }
+    } catch(err) { alert('JSON 解析失敗: ' + err.message); }
+  };
+  input.click();
+}
+</script>
 <script>
 // ══════════════════════════════════════════
 // DATA
@@ -359,7 +475,8 @@ function updateNoKeyBanner(){document.getElementById('no-key-banner').classList.
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
-function renderMonthTabs(){const n=document.getElementById('month-nav');n.innerHTML='';Object.entries(CURRICULUM).forEach(([k,m])=>{const b=document.createElement('button');b.className='month-tab'+(k===currentMonth?' active':'');if(!m.units.length&&k!==currentMonth)b.classList.add('locked');b.textContent=m.title;b.onclick=()=>{if(!m.units.length)return;currentMonth=k;currentUnitIdx=0;renderMonthTabs();renderUnitCards();loadUnit();saveProgress();};n.appendChild(b);});}
+function renderMonthTabs(){const n=document.getElementById('month-nav');n.innerHTML='';Object.entries(CURRICULUM).forEach(([k,m])=>{const b=document.createElement('button');b.className='month-tab'+(k===currentMonth?' active':'');const isEmpty=!m.units||!m.units.length;if(isEmpty&&k!==currentMonth)b.classList.add('locked');b.textContent=m.title;b.onclick=async()=>{if(isEmpty){// 嘗試從 Firebase 載入
+  b.textContent='☁️ 載入中...';const cloud=await loadMonthFromFirebase(k);if(cloud&&cloud.units?.length){CURRICULUM[k].units=cloud.units;if(cloud.title)CURRICULUM[k].title=cloud.title;b.classList.remove('locked');}else{b.textContent=m.title;return;}}currentMonth=k;currentUnitIdx=0;renderMonthTabs();renderUnitCards();loadUnit();saveProgress();};n.appendChild(b);});}
 function renderUnitCards(){const s=document.getElementById('unit-scroll');s.innerHTML='';const u=getCurrentUnits();if(!u.length){s.innerHTML='<div style="padding:8px;color:var(--text-muted);font-size:0.8rem;">🔒 即將開放...</div>';return;}u.forEach((x,i)=>{const c=document.createElement('button');c.className='unit-card'+(i===currentUnitIdx?' active':'');c.textContent=x.topic;c.onclick=()=>{currentUnitIdx=i;renderUnitCards();loadUnit();saveProgress();};s.appendChild(c);});}
 function switchPhase(n){if(n!==3)exitImmersive();currentPhase=n;document.querySelectorAll('.phase-container').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.phase-btn').forEach(e=>e.classList.remove('active'));document.getElementById('phase'+n).classList.add('active');document.querySelectorAll('.phase-btn')[n-1].classList.add('active');if(n===3){enterImmersive();initCanvas();}saveProgress();}
 function loadUnit(){const u=getCurrentUnit();if(!u)return;buildPhase1(u);buildPhase2(u);buildPhase3(u);updateProgress();if(currentPhase===3)initCanvas();saveProgress();}
@@ -500,11 +617,26 @@ function loadProgress(){try{const r=localStorage.getItem('jd-progress');if(!r)re
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-window.addEventListener('load',()=>{try{GEMINI_KEY=localStorage.getItem('jd-gemini-key')||'';tripDate=localStorage.getItem('jd-trip-date')||null;}catch(e){}
+// 同步現有 data.js 月份到 Firebase
+async function syncExistingToFirebase() {
+  if (!_fbReady) { alert('Firebase 未連線'); return; }
+  const months = Object.entries(CURRICULUM).filter(([k, m]) => m.units?.length > 0);
+  if (!months.length) { alert('沒有可同步的月份'); return; }
+  let ok = 0;
+  for (const [id, m] of months) {
+    const success = await saveMonthToFirebase(id, m);
+    if (success) ok++;
+  }
+  alert(`✅ 已同步 ${ok}/${months.length} 個月份到 Firebase`);
+}
+
+window.addEventListener('load', async ()=>{try{GEMINI_KEY=localStorage.getItem('jd-gemini-key')||'';tripDate=localStorage.getItem('jd-trip-date')||null;}catch(e){}
   // Restore saved progress
   const resumed=loadProgress();
   updateCountdown();updateNoKeyBanner();renderMonthTabs();renderUnitCards();loadUnit();
   if(resumed)switchPhase(currentPhase);
+  // 從 Firebase 載入雲端月份（背景非同步）
+  loadCloudMonths();
   // Register PWA Service Worker
   if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').then(r=>console.log('SW registered:',r.scope)).catch(e=>console.log('SW failed:',e));}
 });
